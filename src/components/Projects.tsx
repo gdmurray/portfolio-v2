@@ -1,163 +1,370 @@
 import {
+    Badge,
+    Button,
     Card,
     CardBody,
-    Heading,
+    CardFooter,
+    Flex,
     HStack,
     IconButton,
     Image,
+    SimpleGrid,
     Stack,
     Text,
-    useTheme,
     Tooltip,
-    CardFooter, Flex
+    useTheme
 } from "@chakra-ui/react";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {graphql} from "gatsby";
 import {LazyIcon} from "./LazyIcon";
-import {IconSquareFilled} from "@tabler/icons-react";
+import {IconBrandGithub, IconExternalLink, IconSquareFilled} from "@tabler/icons-react";
 import {Section} from "./Section";
-import {AnimatePresence, motion} from "framer-motion";
+import {motion, useInView} from "framer-motion";
 
+
+function calculateTextWidth(text: string, font: string) {
+    // Create a canvas element
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    if (context == null) {
+        return;
+    }
+    // Set the font to the context to match the desired style
+    context.font = font;
+
+    // Measure the text width using the measureText method
+    const metrics = context.measureText(text);
+
+    // Return the width
+    return metrics.width;
+}
+
+function calculateBadgeWidth({textSize, fontFamily, padding, gap, textContent}: {
+    textSize: number;
+    fontFamily: string;
+    padding: number;
+    gap: number;
+    textContent: string;
+}) {
+    // Construct the font string similar to CSS font property
+    const font = `${textSize}px ${fontFamily}`;
+
+    // Calculate the text width
+    const textWidth: number = calculateTextWidth(textContent, font) ?? 75;
+
+    // Calculate total padding (left + right)
+    const totalPadding = padding * 2;
+
+    // Calculate the total badge width
+    return textWidth + totalPadding + gap;
+}
 
 const MotionCard = motion(Card);
 const ProjectCard = (project: Queries.ProjectsComponentFragment["projects"][number]) => {
     const theme = useTheme();
     // State to control when to start the animation
     const [isVisible, setIsVisible] = useState(false);
-    const parentRef = useRef(null);
-    const ref = useRef(null);
+    const skillsRef = useRef<HTMLDivElement>(null);
+    const ref = useRef(null)
+    const inView = useInView(ref, {
+        once: true,
+        margin: "0px 0px -150px 0px"
+    });
+
+    const slideUpProps = {
+        initial: "hidden",
+        animate: inView ? "visible" : "hidden",
+        variants: {
+            hidden: {opacity: 0, y: 75}, // Start below their final position
+            visible: {
+                opacity: 1,
+                y: 0,
+                transition: {duration: 0.5},
+            },
+        },
+    };
+
+    const [visibleSkills, setVisibleSkills] = useState(project.skills);
+    const [overflowCount, setOverflowCount] = useState(0);
+    const [showAll, setShowAll] = useState(false);
+
+    const skillWidths = useMemo(() => {
+        const gap = 5;
+        const padding = 8; // Padding inside the badge
+        const textSize = 12; // Text size in pixels
+        const fontFamily = "Poppins, Roboto, -apple-system, sans-serif, serif"; // Font family
+
+        return project.skills.reduce<{ [key: string]: number }>((acc: any, skill: any) => {
+            acc[skill.name] = calculateBadgeWidth({textSize, fontFamily, padding, gap, textContent: skill.name})
+            return acc;
+        }, {})
+
+    }, [project.skills])
 
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                // Update our state when observer callback fires
-                if (entry.isIntersecting) {
-                    setIsVisible(true);
-                    observer.disconnect();
+        const calculateVisibility = () => {
+            console.log("Calculating visibility");
+            const containerWidth = (skillsRef.current?.offsetWidth ?? 0) - 20;
+            let totalWidth = 0;
+            let visibleCount = 0;
+
+            console.log("Container Width: ", containerWidth);
+            for (let skill of project.skills) {
+                totalWidth += skillWidths[skill.name];
+                console.log("total Width: ", totalWidth);
+                if (totalWidth > containerWidth && !showAll) {
+                    break;
                 }
-            },
-            {
-                root: null, // relative to the viewport
-                threshold: 1, // percentage of the observed element that is visible
+                visibleCount++;
             }
-        );
-
-        if (parentRef.current) {
-            observer.observe(parentRef.current);
+            setVisibleSkills(project.skills.slice(0, visibleCount));
+            setOverflowCount(project.skills.length - visibleCount);
         }
+        calculateVisibility();
+        window.addEventListener('resize', calculateVisibility);
 
-        return () => {
-            observer.disconnect();
-        };
-    }, []);
+        return () => window.removeEventListener('resize', calculateVisibility);
+    }, [project.skills, showAll, skillWidths]);
 
-    const onMouseMove = (e) => {
-        if (!ref.current) return;
-
-        const {left, top, width, height} = ref.current.getBoundingClientRect();
-        const centerX = left + width / 2;
-        const centerY = top + height / 2;
-        const deltaX = e.clientX - centerX;
-        const deltaY = e.clientY - centerY;
-
-        // Adjust these values to change the sensitivity and range of the effect
-        const maxDistance = 300;
-        const intensity = 0.005;
-
-        const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-        if (distance < maxDistance) {
-            // Apply a transformation based on the mouse position
-            const scale = 1 + intensity * ((maxDistance - distance) / maxDistance);
-
-            // Set the transform properties
-            ref.current.style.transform = `translate(${deltaX * intensity}px, ${deltaY * intensity}px) scale(${scale})`;
-        } else {
-            // Reset transformations if the mouse is too far
-            ref.current.style.transform = 'translate(0px, 0px) scale(1)';
-        }
-    };
-
-    const resetTransform = () => {
-        if (ref.current) {
-            ref.current.style.transform = 'translate(0px, 0px) scale(1)';
-        }
-    };
 
     return (
-        <div ref={parentRef}>
-            <MotionCard
-                ref={ref}
-                onMouseMove={onMouseMove}
-                onMouseLeave={resetTransform}
-                p={4} backgroundColor={theme.colors.brand.black}
-                borderRadius={"lg"}
-                maxW={"4xl"} direction={"column"}
-                // initial={"hidden"}
-                // animate={isVisible ? "visible" : "hidden"}
-                // variants={{
-                //     visible: {opacity: 1, x: 0},
-                //     hidden: {opacity: 0, x: -100},
-                // }}
-                // transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            >
-                <Stack direction={{base: "column", md: "row"}} alignItems={"center"}>
-                    <Image p={4} height={"200px"} src={project?.image?.file?.url ?? ""}
+        <MotionCard
+            ref={ref}
+            p={1}
+            paddingY={2}
+            w={"385px"}
+            borderRadius={"lg"}
+            _hover={{boxShadow: "lg"}}
+            {...slideUpProps}>
+            {/*<CardHeader>*/}
+            {/*    <IconDots/>*/}
+            {/*</CardHeader>*/}
+            <CardBody p={2}>
+                <Flex w={"100%"} justifyContent={"center"} height={"150px"}>
+                    <Image p={0} width={"275px"} src={project?.image?.file?.url ?? ""}
                            alt={project?.description?.description ?? "project-image"}/>
-                    <CardBody>
-                        <Stack>
-                            <HStack justify={"space-between"}>
-                                <Text fontSize={18} fontWeight={600}
-                                      color={theme.colors.brand.orange}>{project?.name}</Text>
-                                <HStack>
-                                    {project?.links?.map((link) => {
-                                        if (link == null) return <></>
-                                        const iconButton = (
-                                            <IconButton
-                                                icon={<LazyIcon iconName={link.icon ?? "IconBrandGithub"}/>}
-                                                aria-label={link.name ?? "link"} as={"a"}
-                                                href={link.link ?? ""}
-                                                target={link.opensInNewTab ? "_blank" : "_self"}/>)
-                                        if (link.tooltip != null) {
-                                            return (<Tooltip placement={"top"}
-                                                             label={link.tooltip}>{iconButton}</Tooltip>)
-                                        }
-                                        return (
-                                            <>{iconButton}</>
-                                        )
-                                    })}
-                                </HStack>
-                            </HStack>
-                            <Text fontSize={12}>{project?.description?.description}</Text>
-                        </Stack>
-                    </CardBody>
+                </Flex>
+                <Stack paddingX={4} paddingTop={4} paddingBottom={2}>
+                    <Text fontWeight={600}>{project?.name}</Text>
+                    <Text fontSize={12} height={"90px"}>{project.shortDescription}</Text>
+                    <Flex wrap={"wrap"} gap={"5px"} ref={skillsRef}>
+                        <>
+                            {visibleSkills.map((skill: any) => (
+                                <Badge key={`${project.id}-${skill.name}`} borderRadius={"lg"} paddingX={2}
+                                       paddingY={0.5}
+                                       textTransform={"none"}>{skill.name}</Badge>))}
+                            {overflowCount > 0 && (
+                                <Badge cursor={"pointer"} _hover={{background: theme.colors.gray["200"]}}
+                                       onClick={() => {
+                                           setShowAll(true)
+                                       }} borderRadius={"lg"} paddingX={1} paddingY={0.5}
+                                       textTransform={"none"}>+{overflowCount}</Badge>)}
+                            {showAll && (
+                                <Badge cursor={"pointer"} _hover={{background: theme.colors.gray["200"]}}
+                                       onClick={() => {
+                                           setShowAll(false)
+                                       }} borderRadius={"lg"} paddingX={2} paddingY={0.5}
+                                       textTransform={"none"}>-</Badge>)}
+                        </>
+                        {/*{project.skills.map((skill) => (*/}
+                        {/*    <Badge borderRadius={"lg"} paddingX={2} paddingY={0.5} textTransform={"none"}>{skill.name}</Badge>*/}
+                        {/*))}*/}
+                    </Flex>
                 </Stack>
-                <Flex wrap={"wrap"} columnGap={4} rowGap={1} justifyContent={"center"}>
-                    {project?.skills?.map((skill) => {
-                        if (skill == null) return <></>
-                        if (skill.name == null) return <></>
+            </CardBody>
+            <CardFooter paddingX={4} paddingY={1}>
+                <HStack justifyContent={"space-between"} w={"full"}>
+                    {project?.links?.map((link: any, index: number) => {
+                        if (link == null) return <></>
                         return (
-                            <HStack>
-                                <IconSquareFilled size={12}
-                                                  color={theme.colors.brand.orange}/>
-                                <Text> {skill.name}</Text>
-                            </HStack>
+                            <Button
+                                background={index === 0 ? "black" : "gray.200"}
+                                _hover={{background: index === 0 ? "gray.800" : "gray.100"}}
+                                color={index === 0 ? "white" : "black"}
+                                variant={"solid"}
+                                flex={1}
+                                leftIcon={<LazyIcon iconName={link.icon ?? "IconBrandGithub"}/>}
+                                aria-label={link.name ?? "link"}
+                                as={"a"}
+                                target={link.opensInNewTab ? "_blank" : "_self"}
+                                href={link.link ?? ""}
+                            >
+                                {link.tooltip}
+                            </Button>
                         )
                     })}
-                </Flex>
-            </MotionCard>
-        </div>
+                </HStack>
+            </CardFooter>
+        </MotionCard>
+    )
+}
+
+function sortObjectByArrayLengthAndKey(obj) {
+    // Convert the object into an array of [key, value] pairs
+    const entries = Object.entries(obj);
+
+    // Sort the entries
+    entries.sort((a, b) => {
+        // a and b are entries of the form [key, value], where value is a string array
+        const lengthDifference = b[1].length - a[1].length; // Descending by array length
+        if (lengthDifference !== 0) {
+            // If the lengths are different, decide based on the length
+            return lengthDifference;
+        } else {
+            // If the lengths are the same, sort alphabetically by key
+            return a[0].localeCompare(b[0]);
+        }
+    });
+
+    // Map the sorted array of entries to an array of keys
+    return entries.map(entry => entry[0]);
+}
+
+const ProjectFilterSkillsBadge = ({skill, isActive, onClick, length}: {
+    skill: string;
+    isActive: boolean;
+    onClick: () => void;
+    length?: number;
+}) => {
+    return (
+        <Badge
+            cursor={"pointer"}
+            background={"brand.subaruGreen.800"}
+            color={"white"}
+            textTransform={"none"}
+            onClick={onClick}
+            _active={{background: "brand.tangerineOrange.800", color: "white"}}
+            _hover={{background: isActive ? "brand.tangerineOrange.700" : "brand.subaruGreen.700"}}
+            data-active={isActive ? true : undefined}
+            fontSize={12}
+            paddingX={4}
+            paddingY={2}
+            borderRadius={"xl"}>
+            {skill} {length != null ? `(${length})` : ''}
+        </Badge>
     )
 }
 export const Projects = (props: Queries.ProjectsComponentFragment) => {
+    const [activeSkill, setActiveSkill] = useState("All")
     const theme = useTheme();
+    const skillsRef = useRef<HTMLDivElement>(null);
+
+    const skillsMap = useMemo(() => {
+        return props.projects?.reduce<{ [key: string]: string[] }>((acc, elem) => {
+            if (elem?.skills == null) {
+                return acc;
+            }
+            for (const skill of elem.skills) {
+                if (!skill || skill.name == null) {
+                    continue;
+                }
+                if (!(skill.name in acc)) {
+                    acc[skill.name] = [elem.id]
+                } else {
+                    acc[skill?.name].push(elem.id)
+                }
+            }
+            return acc
+        }, {})
+    }, [props.projects])
+
+    const projectList = useMemo(() => {
+        if (activeSkill !== "All") {
+            return props.projects?.filter((project) => {
+                return project?.skills?.some((skill) => skill?.name === activeSkill)
+            }) ?? [];
+        }
+        return props.projects ?? [];
+    }, [props.projects, activeSkill])
+
+
+    const skillsArray = useMemo(() => {
+        return sortObjectByArrayLengthAndKey(skillsMap);
+    }, [skillsMap])
+
+    const skillWidths = useMemo(() => {
+        const gap = 5;
+        const padding = 16; // Padding inside the badge
+        const textSize = 12; // Text size in pixels
+        const fontFamily = "Poppins, Roboto, -apple-system, sans-serif, serif"; // Font family
+
+        return skillsArray.reduce<{ [key: string]: number }>((acc, skill) => {
+            acc[skill] = calculateBadgeWidth({textSize, fontFamily, padding, gap, textContent: skill})
+            return acc;
+        }, {})
+    }, [skillsArray])
+
+    const [visibleSkills, setVisibleSkills] = useState(skillsArray);
+    const [overflowCount, setOverflowCount] = useState(0);
+    const [showAll, setShowAll] = useState(false);
+
+    useEffect(() => {
+        const calculateVisibility = () => {
+            console.log("Calculating visibility");
+            const containerWidth = (skillsRef.current?.offsetWidth ?? 0) * 1.5;
+            let totalWidth = 0;
+            let visibleCount = 0;
+
+            console.log("Container Width: ", containerWidth);
+            for (let skill of skillsArray) {
+                totalWidth += skillWidths[skill];
+                console.log("total Width: ", totalWidth);
+                if (totalWidth > containerWidth && !showAll) {
+                    break;
+                }
+                visibleCount++;
+            }
+            setVisibleSkills(skillsArray.slice(0, visibleCount));
+            setOverflowCount(skillsArray.length - visibleCount);
+        }
+        calculateVisibility();
+        window.addEventListener('resize', calculateVisibility);
+
+        return () => window.removeEventListener('resize', calculateVisibility);
+    }, [skillsArray, showAll, skillWidths]);
+
+    console.log("SkillsMap: ", skillsMap);
     return (
-        <Section title={"3. Projects"} anchor={"projects"}>
-            <Stack gap={8} alignItems={"center"}>
-                {props.projects?.map((project) => {
-                    console.log("Project: ", project);
+        <Section bg={"brand.background.beige"} title={"3. Projects"} anchor={"projects"}>
+            <Flex wrap={"wrap"} gap={"5px"} ref={skillsRef}>
+                <ProjectFilterSkillsBadge
+                    skill={"All"}
+                    isActive={activeSkill === "All"}
+                    onClick={() => setActiveSkill("All")}
+                    length={props.projects?.length}
+                />
+                {visibleSkills.map((skill) => (
+                    <ProjectFilterSkillsBadge
+                        key={`project-${skill}`}
+                        skill={skill}
+                        isActive={activeSkill === skill}
+                        onClick={() => setActiveSkill(skill)}
+                        length={skillsMap![skill].length}
+                    />
+                ))}
+                {overflowCount > 0 && (
+                    <ProjectFilterSkillsBadge
+                        skill={`+${overflowCount} More`}
+                        onClick={() => setShowAll(true)}
+                        length={undefined}
+                        isActive={false}
+                    />
+                )}
+                {showAll && (
+                    <ProjectFilterSkillsBadge
+                        skill={'-'}
+                        onClick={() => setShowAll(false)}
+                        length={undefined}
+                        isActive={false}
+                    />
+                )}
+            </Flex>
+            <Flex wrap={"wrap"} marginTop={8} rowGap={"40px"}  columnGap={"20px"}>
+                {projectList.map((project) => {
                     return <ProjectCard key={project?.name ?? ""} {...project} />
                 })}
-            </Stack>
+            </Flex>
         </Section>
     )
 }
@@ -167,7 +374,9 @@ export const query = graphql`
         title
         description
         projects {
+            id
             name
+            shortDescription
             description {
                 description
             }

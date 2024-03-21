@@ -16,7 +16,7 @@ const pageStyle = {
     fontFamily: "Poppins, Roboto, -apple-system, sans-serif, serif",
     minHeight: "100vh",
     height: "auto",
-    width: "100vw"
+    width: "100%"
 }
 
 const sectionMap = {
@@ -33,11 +33,11 @@ const IndexPage: React.FC<PageProps> = ({data}) => {
     const {contentfulPage} = data as {contentfulPage: Queries.ContentfulPage};
     console.log(contentfulPage.sections);
     return (
-        <Box as={"main"} style={pageStyle} backgroundColor={"brand.green"}>
+        <Box as={"main"} style={pageStyle} background={"brand.background.beige"}>
             <Header/>
-            <HStack height={"auto"}>
+            <HStack height={"auto"} paddingTop={"120px"}>
                 {/*<RockWall parentRef={parentRef}/>*/}
-                <Stack gap={12} ref={parentRef} flex={1} alignItems={"center"}>
+                <Stack p={0} gap={12} ref={parentRef} flex={1} alignItems={"center"}>
                     <Hero />
                     {contentfulPage.sections?.map((elem) => {
                         const {

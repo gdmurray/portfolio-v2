@@ -1,11 +1,14 @@
 import React from "react";
 import {graphql} from "gatsby";
-import {Box, Heading, HStack, Stack, Text, useTheme, VStack} from "@chakra-ui/react";
+import {Box, DarkMode, Heading, HStack, Stack, Text, useColorModeValue, useTheme, VStack} from "@chakra-ui/react";
 import {Section} from "./Section";
 import {IconChevronRight} from "@tabler/icons-react";
 
 
-export const ExperienceItem = (experience: Queries.ExperienceComponentFragment["experiences"][number]) => {
+export const ExperienceItem = ({experience, color}: {
+    experience: Queries.ExperienceComponentFragment["experiences"][number],
+    color: string
+}) => {
     const theme = useTheme();
     console.log(experience.description.description);
     const experiences = experience.description.description.split("\n");
@@ -14,8 +17,8 @@ export const ExperienceItem = (experience: Queries.ExperienceComponentFragment["
     console.log(dotExperiences)
     return (
         <VStack alignItems={"flex-start"} mb={6}>
-            <Heading size={"md"}>{experience.title} @ <span
-                style={{color: "#DCED31"}}>{experience.name}</span></Heading>
+            <Heading color={"white"} size={"md"}>{experience.title} @ <Text as={"span"}
+                                                                            color={color}>{experience.name}</Text></Heading>
             <Heading size={"sm"} as={"h5"} color={"gray.300"}></Heading>
             <VStack alignItems={"flex-start"}>
                 {experiences.map((e) => {
@@ -28,7 +31,7 @@ export const ExperienceItem = (experience: Queries.ExperienceComponentFragment["
                                 <Box w={"32px"} h={"32px"}>
                                     <IconChevronRight width={32} height={32} size={28} color={theme.colors.brand.orange}/>
                                 </Box>
-                                <Text pt={1}>
+                                <Text pt={1} color={"gray.100"}>
                                     {expReplace}
                                 </Text>
                             </HStack>
@@ -41,12 +44,13 @@ export const ExperienceItem = (experience: Queries.ExperienceComponentFragment["
 }
 export const Experience = (props: Queries.ExperienceComponentFragment) => {
     const theme = useTheme();
+    const colors = ["brand.skyBlue.900", "brand.roseRed.900", "brand.aquaBlue.900", "brand.neonGreen.900"]
     return (
-        <Section title={"4. Experience"} anchor={"experience"}>
+        <Section bg={"brand.background.green"} title={"4. Experience"} anchor={"experience"}>
             <Stack maxW={"5xl"}>
-                {props.experiences?.map((experience) => {
+                {props.experiences?.map((experience, index) => {
                     return (
-                        <ExperienceItem {...experience} />
+                        <ExperienceItem experience={experience} color={colors[index % colors.length]}/>
                     )
                 })}
             </Stack>

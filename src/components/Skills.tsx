@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react"
-import {Heading, Stack, useTheme, Text, SimpleGrid, Flex, HStack} from "@chakra-ui/react";
+import {Heading, Stack, useTheme, Text, SimpleGrid, Flex, HStack, DarkMode} from "@chakra-ui/react";
 import {graphql} from "gatsby";
 import {IconSquareFilled} from "@tabler/icons-react";
 import {Section} from "./Section";
@@ -56,7 +56,9 @@ const SkillSectionComponent = (section: Queries.SkillsComponentFragment["section
                                           transition={{duration: 0.5, delay: index * 0.15}}>
                                 <IconSquareFilled size={12}
                                                   color={section.color ?? "black"}/>
-                                <Text> {skill.name}</Text>
+                                <DarkMode>
+                                    <Text color={"whiteAlpha.900"}> {skill.name}</Text>
+                                </DarkMode>
                             </MotionHStack>
                         )
                     })}
@@ -69,16 +71,18 @@ export const Skills = (props: Queries.SkillsComponentFragment) => {
     console.log("Skills Props: ", props);
     const theme = useTheme();
     return (
-        <Section title={"2. Skills"} anchor={"skills"}>
-            <Stack gap={8}>
-                {props.sections?.map((section) => {
-                    console.log("Section: ", section);
-                    if (section == null) return <></>
-                    return (
-                        <SkillSectionComponent key={section.color} {...section} />
-                    )
-                })}
-            </Stack>
+        <Section bg={"brand.background.green"} title={"2. Skills"} anchor={"skills"}>
+            <DarkMode>
+                <Stack gap={8}>
+                    {props.sections?.map((section) => {
+                        console.log("Section: ", section);
+                        if (section == null) return <></>
+                        return (
+                            <SkillSectionComponent key={section.color} {...section} />
+                        )
+                    })}
+                </Stack>
+            </DarkMode>
         </Section>
     )
 }

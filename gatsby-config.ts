@@ -3,7 +3,7 @@ import type {GatsbyConfig} from "gatsby";
 const config: GatsbyConfig = {
     siteMetadata: {
         title: `Greg Murray Portfolio`,
-        siteUrl: `https://www.yourdomain.tld`
+        siteUrl: `https://www.gregmurray.dev`
     },
     // More easily incorporate content into your pages through automatic TypeScript type generation and better GraphQL IntelliSense.
     // If you use VSCode you can also use the GraphQL plugin
@@ -23,7 +23,10 @@ const config: GatsbyConfig = {
     }, "gatsby-plugin-image", "gatsby-plugin-sharp", "gatsby-transformer-sharp", "gatsby-plugin-postcss", {
         resolve: 'gatsby-plugin-manifest',
         options: {
-            "icon": "src/images/icon.png"
+            icon: "src/images/favicon@32.png",
+            start_url: "/",
+            name: "Greg Murray Portfolio",
+            short_name: "GM",
         }
     }, {
         resolve: '@chakra-ui/gatsby-plugin',
