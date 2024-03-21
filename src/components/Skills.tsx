@@ -10,6 +10,7 @@ import {AnimatePresence, motion} from "framer-motion";
 
 const MotionHStack = motion(HStack);
 
+// @ts-ignore
 const SkillSectionComponent = (section: Queries.SkillsComponentFragment["sections"][number]) => {
     // State to control when to start the animation
     const [isVisible, setIsVisible] = useState(false);

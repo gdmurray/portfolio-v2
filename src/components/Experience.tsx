@@ -6,22 +6,20 @@ import {IconChevronRight} from "@tabler/icons-react";
 
 
 export const ExperienceItem = ({experience, color}: {
+    // @ts-ignore
     experience: Queries.ExperienceComponentFragment["experiences"][number],
     color: string
 }) => {
     const theme = useTheme();
-    console.log(experience.description.description);
     const experiences = experience.description.description.split("\n");
     const dotExperiences = experience.description.description.split("●");
-    console.log(experiences)
-    console.log(dotExperiences)
     return (
         <VStack alignItems={"flex-start"} mb={6}>
             <Heading color={"white"} size={"md"}>{experience.title} @ <Text as={"span"}
                                                                             color={color}>{experience.name}</Text></Heading>
             <Heading size={"sm"} as={"h5"} color={"gray.300"}></Heading>
             <VStack alignItems={"flex-start"}>
-                {experiences.map((e) => {
+                {experiences.map((e: any) => {
                         if (e === "") {
                             return <></>
                         }

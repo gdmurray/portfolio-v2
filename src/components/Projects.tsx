@@ -6,38 +6,38 @@ import {
     CardFooter,
     Flex,
     HStack,
-    IconButton,
     Image,
-    SimpleGrid,
     Stack,
     Text,
-    Tooltip,
     useTheme
 } from "@chakra-ui/react";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {graphql} from "gatsby";
 import {LazyIcon} from "./LazyIcon";
-import {IconBrandGithub, IconExternalLink, IconSquareFilled} from "@tabler/icons-react";
 import {Section} from "./Section";
 import {motion, useInView} from "framer-motion";
 
 
 function calculateTextWidth(text: string, font: string) {
-    // Create a canvas element
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+    if (typeof document !== "undefined") {
+        // Create a canvas element
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
 
-    if (context == null) {
-        return;
+        if (context == null) {
+            return;
+        }
+        // Set the font to the context to match the desired style
+        context.font = font;
+
+        // Measure the text width using the measureText method
+        const metrics = context.measureText(text);
+
+        // Return the width
+        return metrics.width;
     }
-    // Set the font to the context to match the desired style
-    context.font = font;
+    return text.length * 0.6;
 
-    // Measure the text width using the measureText method
-    const metrics = context.measureText(text);
-
-    // Return the width
-    return metrics.width;
 }
 
 function calculateBadgeWidth({textSize, fontFamily, padding, gap, textContent}: {
@@ -61,6 +61,7 @@ function calculateBadgeWidth({textSize, fontFamily, padding, gap, textContent}: 
 }
 
 const MotionCard = motion(Card);
+// @ts-ignore
 const ProjectCard = (project: Queries.ProjectsComponentFragment["projects"][number]) => {
     const theme = useTheme();
     // State to control when to start the animation
@@ -200,7 +201,7 @@ const ProjectCard = (project: Queries.ProjectsComponentFragment["projects"][numb
     )
 }
 
-function sortObjectByArrayLengthAndKey(obj) {
+function sortObjectByArrayLengthAndKey(obj: { [key: string]: string[] }) {
     // Convert the object into an array of [key, value] pairs
     const entries = Object.entries(obj);
 
@@ -280,7 +281,7 @@ export const Projects = (props: Queries.ProjectsComponentFragment) => {
 
 
     const skillsArray = useMemo(() => {
-        return sortObjectByArrayLengthAndKey(skillsMap);
+        return sortObjectByArrayLengthAndKey(skillsMap!);
     }, [skillsMap])
 
     const skillWidths = useMemo(() => {
@@ -360,7 +361,7 @@ export const Projects = (props: Queries.ProjectsComponentFragment) => {
                     />
                 )}
             </Flex>
-            <Flex wrap={"wrap"} marginTop={8} rowGap={"40px"}  columnGap={"20px"}>
+            <Flex wrap={"wrap"} marginTop={8} rowGap={"40px"} columnGap={"20px"}>
                 {projectList.map((project) => {
                     return <ProjectCard key={project?.name ?? ""} {...project} />
                 })}
