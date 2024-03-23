@@ -8,7 +8,7 @@ import {Skills} from "../components/Skills";
 import {Projects} from "../components/Projects";
 import {Experience} from "../components/Experience";
 import {RockWall} from "../components/RockWall";
-import {useEffect, useRef} from "react";
+import {useEffect, useMemo, useRef} from "react";
 import {Footer} from "../components/Footer";
 
 const pageStyle = {
@@ -45,6 +45,17 @@ const IndexPage: React.FC<PageProps> = ({data}) => {
     const parentRef = useRef(null);
     const {contentfulPage} = data as { contentfulPage: Queries.ContentfulPage };
     useCheckAndChangeColorMode();
+    const links: Queries.FooterLinkComponentFragment[] = useMemo(() => {
+        if (contentfulPage.footerLinks != null) {
+            return contentfulPage.footerLinks as unknown as Queries.FooterLinkComponentFragment[];
+        }
+        return []
+    }, [contentfulPage.footerLinks]);
+
+    const FooterComponent = useMemo(() => {
+        return <Footer links={links} />
+    }, [links])
+
     return (
         <Box as={"main"} style={pageStyle} background={"brand.background.beige"}>
             <Header/>
@@ -59,7 +70,6 @@ const IndexPage: React.FC<PageProps> = ({data}) => {
                 alignItems={"center"}
                 overscrollBehaviorX={"none"}
                 overflowX={"hidden"}
-                // paddingX={16}
             >
                 <Hero/>
                 {contentfulPage.sections?.map((elem) => {
@@ -72,7 +82,7 @@ const IndexPage: React.FC<PageProps> = ({data}) => {
                     const Component = sectionMap[typeName as keyof typeof sectionMap];
                     return <Component key={contentful_id} {...componentProps} />
                 })}
-                <Footer links={contentfulPage.footerLinks}/>
+                {FooterComponent}
             </Stack>
         </Box>
     )
