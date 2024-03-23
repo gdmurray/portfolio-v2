@@ -50,7 +50,7 @@ const SkillSectionComponent = (section: Queries.SkillsComponentFragment["section
                         if (skill.name == null) return <></>
 
                         return (
-                            <MotionHStack key={`${skill.name}-${index}`}
+                            <MotionHStack key={`${section.name}-${skill.name}`}
                                           initial={{opacity: 0, y: 20}}
                                           animate={{opacity: 1, y: 0}}
                                           exit={{opacity: 0}}
@@ -69,21 +69,19 @@ const SkillSectionComponent = (section: Queries.SkillsComponentFragment["section
     )
 }
 export const Skills = (props: Queries.SkillsComponentFragment) => {
-    console.log("Skills Props: ", props);
+    // console.log("Skills Props: ", props);
     const theme = useTheme();
     return (
         <Section bg={"brand.background.green"} title={"2. Skills"} anchor={"skills"}>
-            <DarkMode>
-                <Stack gap={8}>
-                    {props.sections?.map((section) => {
-                        console.log("Section: ", section);
-                        if (section == null) return <></>
-                        return (
-                            <SkillSectionComponent key={section.color} {...section} />
-                        )
-                    })}
-                </Stack>
-            </DarkMode>
+            <Stack gap={8}>
+                {props.sections?.map((section) => {
+                    console.log("Section: ", section);
+                    if (section == null) return <></>
+                    return (
+                        <SkillSectionComponent key={section.name} {...section} />
+                    )
+                })}
+            </Stack>
         </Section>
     )
 }

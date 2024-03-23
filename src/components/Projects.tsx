@@ -70,7 +70,7 @@ const ProjectCard = (project: Queries.ProjectsComponentFragment["projects"][numb
     const ref = useRef(null)
     const inView = useInView(ref, {
         once: true,
-        margin: "0px 0px -150px 0px"
+        margin: "0px 0px 100px 0px"
     });
 
     const slideUpProps = {
@@ -105,15 +105,15 @@ const ProjectCard = (project: Queries.ProjectsComponentFragment["projects"][numb
 
     useEffect(() => {
         const calculateVisibility = () => {
-            console.log("Calculating visibility");
+            // console.log("Calculating visibility");
             const containerWidth = (skillsRef.current?.offsetWidth ?? 0) - 20;
             let totalWidth = 0;
             let visibleCount = 0;
 
-            console.log("Container Width: ", containerWidth);
+            // console.log("Container Width: ", containerWidth);
             for (let skill of project.skills) {
                 totalWidth += skillWidths[skill.name];
-                console.log("total Width: ", totalWidth);
+                // console.log("total Width: ", totalWidth);
                 if (totalWidth > containerWidth && !showAll) {
                     break;
                 }
@@ -302,15 +302,15 @@ export const Projects = (props: Queries.ProjectsComponentFragment) => {
 
     useEffect(() => {
         const calculateVisibility = () => {
-            console.log("Calculating visibility");
+            // console.log("Calculating visibility");
             const containerWidth = (skillsRef.current?.offsetWidth ?? 0) * 1.5;
             let totalWidth = 0;
             let visibleCount = 0;
 
-            console.log("Container Width: ", containerWidth);
+            // console.log("Container Width: ", containerWidth);
             for (let skill of skillsArray) {
                 totalWidth += skillWidths[skill];
-                console.log("total Width: ", totalWidth);
+                // console.log("total Width: ", totalWidth);
                 if (totalWidth > containerWidth && !showAll) {
                     break;
                 }
@@ -325,7 +325,6 @@ export const Projects = (props: Queries.ProjectsComponentFragment) => {
         return () => window.removeEventListener('resize', calculateVisibility);
     }, [skillsArray, showAll, skillWidths]);
 
-    console.log("SkillsMap: ", skillsMap);
     return (
         <Section bg={"brand.background.beige"} title={"3. Projects"} anchor={"projects"}>
             <Flex wrap={"wrap"} gap={"5px"} ref={skillsRef}>
@@ -361,7 +360,7 @@ export const Projects = (props: Queries.ProjectsComponentFragment) => {
                     />
                 )}
             </Flex>
-            <Flex wrap={"wrap"} marginTop={8} rowGap={"40px"} columnGap={"20px"}>
+            <Flex wrap={"wrap"} marginTop={8} rowGap={"40px"} columnGap={"20px"} justifyContent={"center"}>
                 {projectList.map((project) => {
                     return <ProjectCard key={project?.name ?? ""} {...project} />
                 })}
