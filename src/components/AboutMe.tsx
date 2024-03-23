@@ -1,5 +1,5 @@
-import React, {Touch, useEffect, useRef, useState} from "react";
-import {Flex, Stack, Image as ChakraImage, Box, Text} from "@chakra-ui/react";
+import React, {Touch, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {Flex, Stack, Image as ChakraImage, Box, Text, IconButton, useToken, useColorModeValue} from "@chakra-ui/react";
 import {graphql} from "gatsby";
 import {RichText} from "./RichText";
 import {Section} from "./Section";
@@ -27,51 +27,36 @@ const isTouchDevice = () => {
 
 type HoverPosition = "left" | "right" | "outside"
 
-const NavigationPane = ({isLeft, isHovering, paginate}: {
+const NavigationPane = ({isLeft, height, paginate}: {
     isLeft: boolean;
-    isHovering: boolean;
+    height: string,
     paginate: (n: number) => void;
 }) => {
-    const borderRadiusProps = isLeft ? {
-        borderTopLeftRadius: "lg",
-        borderBottomLeftRadius: "lg"
-    } : {
-        borderTopRightRadius: "lg",
-        borderBottomRightRadius: "lg"
-    }
     return (
         <MotionBox
-            position={"absolute"}
-            justifyContent={"center"}
-            bottom={0}
-            left={isLeft ? 0 : "80%"}
-            right={isLeft ? "80%" : 0}
+            position="absolute"
             top={0}
-            paddingX={4}
-            {...borderRadiusProps}
-            display={"flex"}
-            // display={isHovering ? "flex" : "none"}
-            initial={{opacity: 0}} // Start with the box being transparent
-            animate={{opacity: isHovering ? 1 : 0}} // Animate to fully visible or transparent
-            exit={{opacity: 0}} // Ensure fade-out on exit
-            transition={{
-                opacity: {
-                    duration: 0.25,
-                    delay: isHovering ? 0 : 0.25 // Delay fade out to allow it to be seen
-                }
-            }}
-            alignItems={"center"}
-            bg={"whiteAlpha.300"}
-            zIndex={100}
-            cursor={"pointer"}
-            color={"white"}
-            _hover={{bg: "whiteAlpha.500", color: "brand.tangerineOrange.900"}}
-            style={{
-                transition: "background-color 0.3s ease, color 0.3s ease"
-            }}
-            onClick={() => paginate(isLeft ? -1 : 1)}
+            left={isLeft ? "-15px" : undefined}
+            right={!isLeft ? "-15px" : undefined}
+            display="flex"
+            alignItems="center"
+            justifyContent={isLeft ? "flex-start" : "flex-end"}
+            cursor="pointer"
+            height={height}
         >
-            {isLeft ? <IconChevronLeft/> : <IconChevronRight/>}
+            <IconButton
+                size={"sm"}
+                aria-label={isLeft ? "left" : "right"}
+                icon={isLeft ? <IconChevronLeft/> : <IconChevronRight/>}
+                onClick={() => paginate(isLeft ? -1 : 1)}
+                isRound={true}
+                fontSize={18}
+                variant={"outline"}
+                borderColor={"brand.tangerineOrange.900"}
+                color={"brand.tangerineOrange.900"}
+                _hover={{background: "brand.tangerineOrange.100"}}
+                transition={"background-color 0.3s ease"}
+            />
         </MotionBox>
     )
 }
@@ -81,13 +66,13 @@ const ImagesComponent = ({images}: { images: Queries.AboutMeComponentFragment["i
     }
 
     const {hash} = useLocation();
-    const containerRef = useRef<HTMLDivElement>(null);
     const [touchDevice, setTouchDevice] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
     const [cursorPosition, setCursorPosition] = useState<HoverPosition>('outside'); // 'left', 'right', or 'outside'
     const [containerHeight, setContainerHeight] = useState('auto');
     const [[page, direction], setPage] = useState([0, 0]);
     const imageIndex = wrap(0, images.length, page);
-    const [isHovering, setIsHovering] = useState(false);
+    // const [isHovering, setIsHovering] = useState(false);
 
     useEffect(() => {
         const resizeObserver = new ResizeObserver(entries => {
@@ -112,10 +97,6 @@ const ImagesComponent = ({images}: { images: Queries.AboutMeComponentFragment["i
         return () => resizeObserver.disconnect();
     }, [images[imageIndex]?.file?.url]);
 
-    useEffect(() => {
-        setTouchDevice(isTouchDevice());
-    }, []);
-
     // Preload images
     useEffect(() => {
         images.forEach(image => {
@@ -123,6 +104,21 @@ const ImagesComponent = ({images}: { images: Queries.AboutMeComponentFragment["i
             img.src = image?.file?.url ?? "";
         });
     }, [images]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setTouchDevice(isTouchDevice());
+        };
+
+        // Set up the event listener
+        window.addEventListener('resize', handleResize);
+
+        // Call the handler right away so state gets updated with initial window size
+        handleResize();
+
+        // Clean up the event listener on component unmount
+        return () => window.removeEventListener('resize', handleResize);
+    }, []); // Empty array ensures that effect is only run on mount and unmount
 
     useEffect(() => {
         if (hash.startsWith("#image")) {
@@ -182,46 +178,48 @@ const ImagesComponent = ({images}: { images: Queries.AboutMeComponentFragment["i
     }, []);
 
 
-    const variants = {
-        enter: (direction: number) => ({
-            x: direction > 0 ? 1000 : -1000,
-            opacity: 0,
-        }),
-        center: {
-            zIndex: 1,
-            x: 0,
-            opacity: 1,
-        },
-        exit: (direction: number) => ({
-            zIndex: 0,
-            x: direction < 0 ? 1000 : -1000,
-            opacity: 0,
-        }),
-    };
+    const variants = useMemo(() => {
+        return {
+            enter: (direction: number) => ({
+                x: direction > 0 ? 500 : -500,
+                opacity: 0,
+            }),
+            center: {
+                zIndex: 1,
+                x: 0,
+                opacity: 1,
+            },
+            exit: (direction: number) => ({
+                zIndex: 0,
+                x: direction < 0 ? 500 : -500,
+                opacity: 0,
+            })
+        }
+    }, [])
 
-    const onMouseEnter = () => {
-        setIsHovering(true)
-    }
+    // const onMouseEnter = () => {
+    //     setIsHovering(true)
+    // }
+    //
+    // const onMouseExit = () => {
+    //     setIsHovering(false);
+    //     setCursorPosition('outside');
+    // }
 
-    const onMouseExit = () => {
-        setIsHovering(false);
-        setCursorPosition('outside');
-    }
-
-    function getSlideProps() {
+    const getSlideProps = useCallback(() => {
         if (touchDevice) {
             return {
                 initial: "enter",
                 animate: "center",
                 exit: "exit",
                 transition: {
-                    x: {type: "spring", stiffness: 500, damping: 30},
-                    opacity: {duration: 0.1},
+                    x: {type: "spring", stiffness: 700, damping: 40},
+                    opacity: {duration: 0.05},
                 },
                 drag: "x" as "x",
                 dragConstraints: {left: 0, right: 0},
-                dragElastic: 1,
-                onDragEnd: (_: any, {offset, velocity}: {offset: Point; velocity: Point}) => {
+                dragElastic: 0.5,
+                onDragEnd: (_: any, {offset, velocity}: { offset: Point; velocity: Point }) => {
                     const swipe = swipePower(offset.x, velocity.x);
                     if (swipe < -swipeConfidenceThreshold) {
                         paginate(1); // Swipe left to right (next)
@@ -232,18 +230,27 @@ const ImagesComponent = ({images}: { images: Queries.AboutMeComponentFragment["i
             }
         }
         return {}
-    }
+    }, [touchDevice])
 
     return (
-        <>
+        <Flex flex={1} flexDirection={"column"} paddingX={8} paddingY={2} justifyContent={"flex-start"}
+              alignItems={"center"} position={"relative"}>
+            <NavigationPane isLeft={true} height={containerHeight}
+                            paginate={paginate}/>
+            <NavigationPane isLeft={false} height={containerHeight}
+                            paginate={paginate}/>
             <Box ref={containerRef}
-                 onMouseEnter={onMouseEnter}
-                 onMouseLeave={onMouseExit}
+                 id={"image"}
+                // onMouseEnter={onMouseEnter}
+                // onMouseLeave={onMouseExit}
                  position="relative"
                  width="100%"
                  maxWidth="400px"
                  height={containerHeight}
-                 overflow="hidden">
+                // overflowY={"hidden"}
+                // overflowX={"visible"}
+                 overflow={"hidden"}
+            >
                 <AnimatePresence initial={false} custom={direction}>
                     <motion.div
                         key={page} // The key is the current page index
@@ -267,18 +274,10 @@ const ImagesComponent = ({images}: { images: Queries.AboutMeComponentFragment["i
 
                     </motion.div>
                 </AnimatePresence>
-                {!touchDevice && (
-                    <>
-                        <NavigationPane isLeft={true} isHovering={isHovering && cursorPosition === "left"}
-                                        paginate={paginate}/>
-                        <NavigationPane isLeft={false} isHovering={isHovering && cursorPosition === "right"}
-                                        paginate={paginate}/>
-                    </>
-                )}
             </Box>
             <Text textAlign={"center"} fontSize={12} fontWeight={600}
                   color={"gray.600"}>{images[imageIndex]?.description}</Text>
-        </>
+        </Flex>
     );
 }
 
@@ -298,13 +297,10 @@ export const AboutMe = (props: Queries.AboutMeComponentFragment) => {
                 initial={{opacity: 0}} // Start hidden
                 animate={{opacity: inView ? 1 : 0}} // Fade in when in view
                 transition={{duration: 0.75, ease: "easeInOut", delay: 1}}>
-                <Stack flex={2} maxW={"2xl"}>
+                <Stack flex={2} maxW={"2xl"} paddingRight={4}>
                     <RichText raw={props.content?.raw ?? ""}/>
                 </Stack>
-                <Flex flex={1} flexDirection={"column"} paddingX={8} paddingY={2} justifyContent={"flex-start"}
-                      alignItems={"center"}>
-                    <ImagesComponent images={props.images}/>
-                </Flex>
+                <ImagesComponent images={props.images}/>
             </MotionStack>
         </Section>
     )

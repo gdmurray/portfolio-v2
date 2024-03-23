@@ -37,6 +37,18 @@ const AnimatedLink = chakra(Link, {
     }
 });
 
+function smoothScrollToId(id: string) {
+    if (typeof document !== "undefined") {
+        const element = document.getElementById(id);
+        if (element) {
+            setTimeout(() => {
+                element.scrollIntoView({behavior: "smooth"});
+            }, 10); // Adding a slight delay
+        }
+        return;
+    }
+}
+
 export function onLinkClick(event: React.MouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
     const {href} = event.currentTarget;
@@ -49,17 +61,11 @@ export function onLinkClick(event: React.MouseEvent<HTMLAnchorElement>) {
         if (hrefTarget.startsWith("image")) {
             // console.log("Navigating to image path");
             navigate("#" + hrefTarget);
+            smoothScrollToId("section-about")
             return;
         }
-        if (typeof document !== "undefined") {
-            const element = document.getElementById(hrefTarget);
-            if (element) {
-                setTimeout(() => {
-                    element.scrollIntoView({behavior: "smooth"});
-                }, 10); // Adding a slight delay
-            }
-            return;
-        }
+        smoothScrollToId(hrefTarget);
+
     }
 }
 

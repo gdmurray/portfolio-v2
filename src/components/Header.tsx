@@ -135,7 +135,7 @@ export function Header() {
             delta.current = delta.current <= -10 ? -10 : delta.current - diff;
         }
 
-        if (delta.current >= 10 && val > 200) {
+        if (delta.current >= 10 && val > 200 && !isOpen) {
             controls.start("hidden");
         } else if (delta.current <= -10 || val < 200) {
             controls.start("visible");
