@@ -10,6 +10,7 @@ import {Experience} from "../components/Experience";
 import {RockWall} from "../components/RockWall";
 import {useEffect, useMemo, useRef} from "react";
 import {Footer} from "../components/Footer";
+import {SEO} from "../components/SEOComponent";
 
 const pageStyle = {
     // backgroundColor: "#3E3A22",
@@ -90,7 +91,9 @@ const IndexPage: React.FC<PageProps> = ({data}) => {
 
 export default IndexPage
 
-export const Head: HeadFC = () => <title>Home Page</title>
+export const Head: HeadFC = () => {
+    return <SEO title={"Greg Murray Portfolio"} description={"Full Stack Software Engineer"} image={`${process.env.GATSBY_SITE_URL}/favicon-180x180.png`} />
+}
 
 export const query = graphql`
     query {

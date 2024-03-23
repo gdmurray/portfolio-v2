@@ -27,6 +27,18 @@ const config: GatsbyConfig = {
             start_url: "/",
             name: "Greg Murray Portfolio",
             short_name: "GM",
+            icons: [
+                {
+                    src: `src/images/favicon@96.png`,
+                    sizes: `96x96`,
+                    type: `image/png`,
+                },
+                {
+                    src: `src/images/favicon@180.png`,
+                    sizes: `180x180`,
+                    type: `image/png`,
+                },
+            ], // Add or remove icon sizes as desired
         }
     }, {
         resolve: '@chakra-ui/gatsby-plugin',
