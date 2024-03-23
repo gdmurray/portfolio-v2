@@ -23,22 +23,22 @@ const config: GatsbyConfig = {
     }, "gatsby-plugin-image", "gatsby-plugin-sharp", "gatsby-transformer-sharp", "gatsby-plugin-postcss", {
         resolve: 'gatsby-plugin-manifest',
         options: {
-            icon: "src/images/favicon@32.png",
+            icon: "src/images/favicon.svg",
             start_url: "/",
             name: "Greg Murray Portfolio",
             short_name: "GM",
-            icons: [
-                {
-                    src: `src/images/favicon@96.png`,
-                    sizes: `96x96`,
-                    type: `image/png`,
-                },
-                {
-                    src: `src/images/favicon@180.png`,
-                    sizes: `180x180`,
-                    type: `image/png`,
-                },
-            ], // Add or remove icon sizes as desired
+            // icons: [
+            //     {
+            //         src: `src/images/favicon@96.png`,
+            //         sizes: `96x96`,
+            //         type: `image/png`,
+            //     },
+            //     {
+            //         src: `src/images/favicon@180.png`,
+            //         sizes: `180x180`,
+            //         type: `image/png`,
+            //     },
+            // ], // Add or remove icon sizes as desired
         }
     }, {
         resolve: '@chakra-ui/gatsby-plugin',
