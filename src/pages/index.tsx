@@ -42,11 +42,8 @@ const useCheckAndChangeColorMode = () => {
 };
 
 const IndexPage: React.FC<PageProps> = ({data}) => {
-    console.log("DATA: ", data);
     const parentRef = useRef(null);
     const {contentfulPage} = data as { contentfulPage: Queries.ContentfulPage };
-    console.log(contentfulPage.sections);
-
     useCheckAndChangeColorMode();
     return (
         <Box as={"main"} style={pageStyle} background={"brand.background.beige"}>
@@ -67,13 +64,13 @@ const IndexPage: React.FC<PageProps> = ({data}) => {
                 <Hero/>
                 {contentfulPage.sections?.map((elem) => {
                     const {
-                        id,
+                        contentful_id,
                         __typename: typeName,
                         ...componentProps
                     } = elem as any;
                     if (elem == null) return <></>
                     const Component = sectionMap[typeName as keyof typeof sectionMap];
-                    return <Component key={elem.id} {...componentProps} />
+                    return <Component key={contentful_id} {...componentProps} />
                 })}
                 <Footer links={contentfulPage.footerLinks}/>
             </Stack>

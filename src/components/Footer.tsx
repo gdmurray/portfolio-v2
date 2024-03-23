@@ -3,6 +3,7 @@ import {Badge, Box, Flex, HStack, IconButton, Stack, Text, useTheme, VStack, Lin
 import {graphql} from "gatsby";
 import {LazyIcon} from "./LazyIcon";
 import {IconMail} from "@tabler/icons-react";
+import {motion} from "framer-motion";
 
 
 const RopeDivider = ({id}: { id: string }) => {
@@ -107,16 +108,22 @@ const MailButton = () => {
     )
 }
 
+const MotionVStack = motion(VStack);
 export const Footer = ({links}: { links: Queries.FooterLinkComponentFragment[] }) => {
-    console.log("Links: ", links, typeof links);
-    const theme = useTheme();
     return (
         <Flex w={"99vw"} paddingX={16} paddingY={16} background={"brand.background.green"} justifyContent={"center"}>
             <Box position={"fixed"} w={"100%"} bottom={0} left={0} display={{base: "none", md: "block"}}>
                 <HStack justifyContent={"space-between"} alignItems={"flex-end"} paddingX={2}>
-                    <VStack alignItems={"flex-end"} gap={4}>
+                    <MotionVStack
+                        initial={"hidden"}
+                        variants={{
+                            hidden: {opacity: 0},
+                            visible: {opacity: 1, transition: {duration: 0.5, delay: 1}}
+                        }}
+                        animate={"visible"}
+                        alignItems={"flex-end"} gap={4}>
                         {links.map((elem) => (
-                            <Flex>
+                            <Flex key={elem.title}>
                                 <IconButton
                                     _hover={{color: "brand.tangerineOrange.600"}}
                                     aria-label={elem.title ?? ""}
@@ -133,20 +140,23 @@ export const Footer = ({links}: { links: Queries.FooterLinkComponentFragment[] }
                         ))}
                         <Box height={"100px"} width={"50%"} borderLeft={"2px solid"}
                              borderLeftColor={"brand.tangerineOrange.900"}/>
-                        {/*<RopeDivider id={"rope1"}/>*/}
-                    </VStack>
-                    <VStack alignItems={"flex-end"} gap={4}>
+                    </MotionVStack>
+                    <MotionVStack alignItems={"flex-end"} gap={4} initial={"hidden"}
+                                  variants={{
+                                      hidden: {opacity: 0},
+                                      visible: {opacity: 1, transition: {duration: 0.5, delay: 1}}
+                                  }}
+                                  animate={"visible"}>
                         <MailButton/>
                         <Box height={"100px"} width={"50%"} borderLeft={"2px solid"}
                              borderLeftColor={"brand.tangerineOrange.900"}/>
-                        {/*<RopeDivider id={"rope1"}/>*/}
-                    </VStack>
+                    </MotionVStack>
                 </HStack>
             </Box>
             <Stack gap={5}>
                 <HStack display={{base: "flex", md: "none"}} gap={5} alignItems={"center"}>
                     {links.map((elem) => (
-                        <Flex>
+                        <Flex key={elem.title}>
                             <IconButton
                                 _hover={{color: "brand.tangerineOrange.600"}}
                                 aria-label={elem.title ?? ""}

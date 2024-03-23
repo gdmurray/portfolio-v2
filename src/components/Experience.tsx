@@ -30,7 +30,7 @@ export const ExperienceItem = ({experience, color}: {
                 delay: i * 0.2, // Each item will animate with a slight delay
             },
         }),
-        hidden: { opacity: 0, x: -50 }, // Items start off-screen to the left
+        hidden: {opacity: 0, x: -50}, // Items start off-screen to the left
     };
     // const dotExperiences = experience.description.description.split("●");
     return (
@@ -50,9 +50,7 @@ export const ExperienceItem = ({experience, color}: {
             </Heading>
             <VStack alignItems={"flex-start"}>
                 {experiences.map((e: any, index: number) => {
-                        if (e === "") {
-                            return <></>
-                        }
+                        if (e === "") return null;
                         const expReplace = e.replace("●", "").replace("o\t", "").replace("\t", "");
                         return (
                             <MotionHStack
@@ -86,7 +84,8 @@ export const Experience = (props: Queries.ExperienceComponentFragment) => {
             <Stack maxW={"5xl"}>
                 {props.experiences?.map((experience, index) => {
                     return (
-                        <ExperienceItem key={`${experience?.name}`} experience={experience} color={colors[index % colors.length]}/>
+                        <ExperienceItem key={`${experience?.name}`} experience={experience}
+                                        color={colors[index % colors.length]}/>
                     )
                 })}
             </Stack>
@@ -96,6 +95,7 @@ export const Experience = (props: Queries.ExperienceComponentFragment) => {
 
 export const query = graphql`
     fragment ExperienceComponent on ContentfulWorkExperience {
+        contentful_id
         title
         description
         experiences {

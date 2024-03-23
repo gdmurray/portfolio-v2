@@ -177,9 +177,10 @@ const ProjectCard = (project: Queries.ProjectsComponentFragment["projects"][numb
             <CardFooter paddingX={4} paddingY={1}>
                 <HStack justifyContent={"space-between"} w={"full"}>
                     {project?.links?.map((link: any, index: number) => {
-                        if (link == null) return <></>
+                        if (link == null) return null;
                         return (
                             <Button
+                                key={`${project.name}-button-${link.name}`}
                                 background={index === 0 ? "black" : "gray.200"}
                                 _hover={{background: index === 0 ? "gray.800" : "gray.100"}}
                                 color={index === 0 ? "white" : "black"}
@@ -371,6 +372,7 @@ export const Projects = (props: Queries.ProjectsComponentFragment) => {
 
 export const query = graphql`
     fragment ProjectsComponent on ContentfulProjectsSection {
+        contentful_id
         title
         description
         projects {

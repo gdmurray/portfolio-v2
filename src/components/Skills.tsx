@@ -46,9 +46,8 @@ const SkillSectionComponent = (section: Queries.SkillsComponentFragment["section
             <AnimatePresence>
                 <Flex columnGap={4} flexWrap={"wrap"} maxW={"5xl"}>
                     {isVisible && section.skills?.map((skill: any, index: number) => {
-                        if (skill == null) return <></>
-                        if (skill.name == null) return <></>
-
+                        if (skill == null) return null
+                        if (skill.name == null) return null
                         return (
                             <MotionHStack key={`${section.name}-${skill.name}`}
                                           initial={{opacity: 0, y: 20}}
@@ -69,14 +68,11 @@ const SkillSectionComponent = (section: Queries.SkillsComponentFragment["section
     )
 }
 export const Skills = (props: Queries.SkillsComponentFragment) => {
-    // console.log("Skills Props: ", props);
-    const theme = useTheme();
     return (
         <Section bg={"brand.background.green"} title={"2. Skills"} anchor={"skills"}>
             <Stack gap={8}>
                 {props.sections?.map((section) => {
-                    console.log("Section: ", section);
-                    if (section == null) return <></>
+                    if (section == null) return null;
                     return (
                         <SkillSectionComponent key={section.name} {...section} />
                     )
@@ -89,6 +85,7 @@ export const Skills = (props: Queries.SkillsComponentFragment) => {
 
 export const query = graphql`
     fragment SkillsComponent on ContentfulSkills {
+        contentful_id
         id
         title
         sections {

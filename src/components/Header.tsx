@@ -111,27 +111,17 @@ export function Header() {
     }, []);
 
     const throttledSetActiveSection = useCallback(throttle((scrollY: number) => {
-        // console.log("Throttled ScrollY: ", scrollY);
         const index = findIndexInRange(sectionLocations, scrollY);
         const section = sections[index];
-        // console.log("Sections: ", sectionLocations, " Index: ", index, " Section: ", section);
         if (section !== activeSection) {
-            // console.log("Setting Active Section: ", section);
             setActiveSection(section);
+            if (hash !== `#section-${activeSection.toLowerCase()}`) {
+                window.history.pushState(null, "", "/");
+            }
         }
     }, 250), [sectionLocations, activeSection]);
 
-    // const throttledHandleSectionHash = useCallback(throttle((scrollY) => {
-    // }, 250), [sectionLocations, activeSection])
-
-    // useEffect(() => {
-    //     console.log("Active Section Changed: ", activeSection, hash);
-    //     // window.history.pushState(null, null, "#section-" + activeSection.toLowerCase());
-    //     window.history.pushState(null, null, "/");
-    // }, [activeSection, hash])
-
     useMotionValueEvent(scrollY, "change", (val) => {
-        console.log("ScrollY: ", val);
         if (lastScrollY.current >= 15 && !hasBoxShadow) {
             setHasBoxShadow(true)
         }
@@ -249,6 +239,7 @@ export function Header() {
                                     <VStack gap={1} alignItems={"flex-start"} paddingX={2}>
                                         {sections.map((section, index) => (
                                                 <Button
+                                                    key={`header-modal-button-${section}`}
                                                     size={"lg"}
                                                     onClick={() => {
                                                         setActiveSection(section);
@@ -318,6 +309,7 @@ export function Header() {
                     >
                         {sections.map((section, index) => (
                                 <MotionButton
+                                    key={`header-button-${section}`}
                                     {...getSlideDownProps(index)}
                                     onClick={() => {
                                         setActiveSection(section);

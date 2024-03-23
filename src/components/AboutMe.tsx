@@ -91,7 +91,6 @@ const ImagesComponent = ({images}: { images: Queries.AboutMeComponentFragment["i
 
     useEffect(() => {
         const resizeObserver = new ResizeObserver(entries => {
-            console.log("Resize Observer: ", entries);
             for (let entry of entries) {
                 const {width} = entry.contentRect;
                 const img = new Image();
@@ -102,7 +101,6 @@ const ImagesComponent = ({images}: { images: Queries.AboutMeComponentFragment["i
                     const aspectRatio = img.naturalHeight / img.naturalWidth;
                     // Set the container height based on the current width and the image's aspect ratio
                     setContainerHeight(`${width * aspectRatio}px`);
-                    console.log("Changed Container Height: ", width, aspectRatio);
                 };
             }
         });
@@ -244,7 +242,6 @@ const ImagesComponent = ({images}: { images: Queries.AboutMeComponentFragment["i
                  position="relative"
                  width="100%"
                  maxWidth="400px"
-                // height={"533px"}
                  height={containerHeight}
                  overflow="hidden">
                 <AnimatePresence initial={false} custom={direction}>
@@ -253,36 +250,10 @@ const ImagesComponent = ({images}: { images: Queries.AboutMeComponentFragment["i
                         custom={direction}
                         variants={variants}
                         {...getSlideProps()}
-                        // initial="enter"
-                        // animate="center"
-                        // exit="exit"
-                        // transition={{
-                        //     x: {type: "spring", stiffness: 500, damping: 30},
-                        //     opacity: {duration: 0.1}
-                        // }}
-                        // drag="x"
-                        // dragConstraints={{ left: 0, right: 0 }}
-                        // dragElastic={1}
-                        // onDragEnd={(e, {offset, velocity}) => {
-                        //     const swipe = swipePower(offset.x, velocity.x);
-                        //     if (swipe < -swipeConfidenceThreshold) {
-                        //         paginate(1); // Swipe left to right (next)
-                        //     } else if (swipe > swipeConfidenceThreshold) {
-                        //         paginate(-1); // Swipe right to left (previous)
-                        //     }
-                        // }}
                     >
-                        {/*<ChakraImage*/}
-                        {/*    src={images[imageIndex]?.file?.url || ''}*/}
-                        {/*    alt={images[imageIndex]?.title || 'Image'}*/}
-                        {/*    fit="contain"*/}
-                        {/*    width="100%"*/}
-                        {/*    height="100%"*/}
-                        {/*    loading="eager"*/}
-                        {/*    borderRadius={"lg"}*/}
-                        {/*/>*/}
                         {images.map((image) => (
                             <ChakraImage
+                                key={image?.title ?? ""}
                                 src={image?.file?.url || ''}
                                 alt={image?.title ?? "Image"}
                                 display={imageIndex === images.indexOf(image) ? "block" : "none"}
@@ -341,6 +312,7 @@ export const AboutMe = (props: Queries.AboutMeComponentFragment) => {
 
 export const query = graphql`
     fragment AboutMeComponent on ContentfulAboutMe {
+        contentful_id
         id
         title
         content {
