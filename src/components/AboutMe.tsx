@@ -269,6 +269,8 @@ const ImagesComponent = ({
             justifyContent={"flex-start"}
             alignItems={"center"}
             position={"relative"}
+            maxWidth={"400px"}
+            alignSelf={{ base: "center", lg: "flex-start" }}
         >
             <NavigationPane
                 isLeft={true}

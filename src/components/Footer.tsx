@@ -123,50 +123,44 @@ export const Footer = ({
             marginTop={"-1px"}
             marginBottom={"0px"}
         >
-            <Box
+            <MotionVStack
+                display={{ base: "none", md: "flex" }}
                 position={"fixed"}
-                w={"100%"}
                 bottom={0}
-                left={0}
-                display={{ base: "none", md: "block" }}
+                left={"5px"}
+                initial={"hidden"}
+                variants={footerElementVariants}
+                animate={controls}
+                alignItems={"flex-end"}
+                gap={4}
             >
-                <HStack
-                    justifyContent={"space-between"}
-                    alignItems={"flex-end"}
-                    paddingX={2}
-                >
-                    <MotionVStack
-                        initial={"hidden"}
-                        variants={footerElementVariants}
-                        animate={controls}
-                        alignItems={"flex-end"}
-                        gap={4}
-                    >
-                        <Icons />
-                        <Box
-                            height={"100px"}
-                            width={"50%"}
-                            borderLeft={"2px solid"}
-                            borderLeftColor={"brand.tangerineOrange.900"}
-                        />
-                    </MotionVStack>
-                    <MotionVStack
-                        alignItems={"flex-end"}
-                        gap={4}
-                        initial={"hidden"}
-                        variants={footerElementVariants}
-                        animate={controls}
-                    >
-                        <MailButton />
-                        <Box
-                            height={"100px"}
-                            width={"50%"}
-                            borderLeft={"2px solid"}
-                            borderLeftColor={"brand.tangerineOrange.900"}
-                        />
-                    </MotionVStack>
-                </HStack>
-            </Box>
+                <Icons />
+                <Box
+                    height={"100px"}
+                    width={"50%"}
+                    borderLeft={"2px solid"}
+                    borderLeftColor={"brand.tangerineOrange.900"}
+                />
+            </MotionVStack>
+            <MotionVStack
+                display={{ base: "none", md: "flex" }}
+                position={"fixed"}
+                bottom={0}
+                right={"5px"}
+                alignItems={"flex-end"}
+                gap={4}
+                initial={"hidden"}
+                variants={footerElementVariants}
+                animate={controls}
+            >
+                <MailButton />
+                <Box
+                    height={"100px"}
+                    width={"50%"}
+                    borderLeft={"2px solid"}
+                    borderLeftColor={"brand.tangerineOrange.900"}
+                />
+            </MotionVStack>
             <Stack gap={5}>
                 <HStack
                     display={{ base: "flex", md: "none" }}
