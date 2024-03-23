@@ -111,7 +111,7 @@ const MailButton = () => {
 const MotionVStack = motion(VStack);
 export const Footer = ({links}: { links: Queries.FooterLinkComponentFragment[] }) => {
     return (
-        <Flex w={"99vw"} paddingX={16} paddingY={16} background={"brand.background.green"} justifyContent={"center"}>
+        <Flex w={"100vw"} paddingX={16} paddingY={16} background={"brand.background.green"} justifyContent={"center"}>
             <Box position={"fixed"} w={"100%"} bottom={0} left={0} display={{base: "none", md: "block"}}>
                 <HStack justifyContent={"space-between"} alignItems={"flex-end"} paddingX={2}>
                     <MotionVStack
