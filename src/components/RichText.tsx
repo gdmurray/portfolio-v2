@@ -5,13 +5,22 @@ import {
     Text as ContentfulText,
 } from "@contentful/rich-text-types";
 import {
-    RenderNode, documentToReactComponents,
+    RenderNode,
+    documentToReactComponents,
     Options,
 } from "@contentful/rich-text-react-renderer";
-import {Box, chakra, Heading, Link, ListIcon, ListItem, OrderedList, Text, UnorderedList} from "@chakra-ui/react";
+import {
+    Box,
+    chakra,
+    Heading,
+    Link,
+    ListItem,
+    OrderedList,
+    Text,
+    UnorderedList,
+} from "@chakra-ui/react";
 import React from "react";
-import {navigate} from "gatsby";
-import {IconChevronRight} from "@tabler/icons-react";
+import { navigate } from "gatsby";
 
 const AnimatedLink = chakra(Link, {
     baseStyle: {
@@ -20,21 +29,21 @@ const AnimatedLink = chakra(Link, {
         fontWeight: 600,
         _after: {
             content: '""',
-            position: 'absolute',
-            width: '0',
-            height: '1px',
-            bottom: '0',
-            left: '0',
-            bg: 'currentColor', // Or any color you want the underline to be
-            transition: 'width 0.3s ease',
+            position: "absolute",
+            width: "0",
+            height: "1px",
+            bottom: "0",
+            left: "0",
+            bg: "currentColor", // Or any color you want the underline to be
+            transition: "width 0.3s ease",
         },
         _hover: {
             textDecoration: "none",
             _after: {
-                width: '100%',
+                width: "100%",
             },
         },
-    }
+    },
 });
 
 function smoothScrollToId(id: string) {
@@ -42,33 +51,26 @@ function smoothScrollToId(id: string) {
         const element = document.getElementById(id);
         if (element) {
             setTimeout(() => {
-                element.scrollIntoView({behavior: "smooth"});
+                element.scrollIntoView({ behavior: "smooth" });
             }, 10); // Adding a slight delay
         }
-        return;
     }
 }
 
 export function onLinkClick(event: React.MouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
-    const {href} = event.currentTarget;
+    const { href } = event.currentTarget;
 
-    // console.log("Got: ", href);
     if (href.includes("#")) {
-        // console.log("In the next line");
         const hrefTarget = href.split("#")[1];
-        // console.log("hrefTarget: ", hrefTarget);
         if (hrefTarget.startsWith("image")) {
-            // console.log("Navigating to image path");
             navigate("#" + hrefTarget);
-            smoothScrollToId("section-about")
+            smoothScrollToId("section-about");
             return;
         }
         smoothScrollToId(hrefTarget);
-
     }
 }
-
 
 const defaultNodeRenderers: RenderNode = {
     [BLOCKS.PARAGRAPH]: (node, children) => {
@@ -77,7 +79,8 @@ const defaultNodeRenderers: RenderNode = {
             ((children as React.ReactNode[]).length === 1 &&
                 (children as React.ReactNode[])[0] === "")
         ) {
-            return <Text mb={4}>&nbsp;</Text>;
+            return <></>;
+            // return <Text mb={4}>&nbsp;</Text>;
         }
         if (children == null) return <></>;
         // @ts-ignore
@@ -88,7 +91,7 @@ const defaultNodeRenderers: RenderNode = {
                 // @ts-ignore
                 children[0].props.children.trim() === ""
             ) {
-                return <br/>;
+                return <br />;
             }
         }
         return <Text mb={4}>{children}</Text>;
@@ -124,7 +127,6 @@ const defaultNodeRenderers: RenderNode = {
         </Heading>
     ),
     [BLOCKS.UL_LIST]: (node, children) => {
-        // console.log("Children: ", children);
         return (
             <UnorderedList
                 display={"flex"}
@@ -134,15 +136,8 @@ const defaultNodeRenderers: RenderNode = {
                 mb={4}
             >
                 {children}
-                {/*{(children! as React.ReactNode[]).map((elem) => (*/}
-                {/*    <ListItem>*/}
-                {/*        <ListIcon as={IconChevronRight} color={"brand.tangerineOrange.900"}/>*/}
-                {/*        {elem}*/}
-                {/*    </ListItem>*/}
-                {/*))*/}
-                {/*}*/}
             </UnorderedList>
-        )
+        );
     },
     [BLOCKS.OL_LIST]: (node, children) => (
         <OrderedList mb={4}>{children}</OrderedList>
@@ -161,9 +156,13 @@ const defaultNodeRenderers: RenderNode = {
     ),
 
     [INLINES.HYPERLINK]: (node) => {
-        const {uri} = node.data;
+        const { uri } = node.data;
         return (
-            <AnimatedLink href={uri} color="brand.tangerineOrange.900" onClick={onLinkClick}>
+            <AnimatedLink
+                href={uri}
+                color="brand.tangerineOrange.900"
+                onClick={onLinkClick}
+            >
                 {(node.content[0] as ContentfulText).value}
             </AnimatedLink>
         );
@@ -171,7 +170,7 @@ const defaultNodeRenderers: RenderNode = {
 };
 
 export function RichText(text: { raw: string }) {
-    const {raw} = text;
+    const { raw } = text;
     const options: Options = {
         renderMark: {
             [MARKS.BOLD]: (text) => <Text as="b">{text}</Text>,
@@ -179,7 +178,7 @@ export function RichText(text: { raw: string }) {
             [MARKS.UNDERLINE]: (text) => <Text as="u">{text}</Text>,
         },
         renderNode: {
-            ...defaultNodeRenderers
+            ...defaultNodeRenderers,
         },
     };
 

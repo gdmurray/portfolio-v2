@@ -1,11 +1,10 @@
 import React from "react";
 import loadable from "@loadable/component";
 
-
 export const LazyIcon = ({
-                             iconName,
-                             props,
-                         }: {
+    iconName,
+    props,
+}: {
     iconName: string;
     props?: any;
 }) => {

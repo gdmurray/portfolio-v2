@@ -1,62 +1,19 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {Badge, Box, Flex, HStack, IconButton, Stack, Text, useTheme, VStack, Link, Spinner} from "@chakra-ui/react";
-import {graphql} from "gatsby";
-import {LazyIcon} from "./LazyIcon";
-import {IconMail} from "@tabler/icons-react";
-import {motion, useAnimation} from "framer-motion";
-
-
-const RopeDivider = ({id}: { id: string }) => {
-    const theme = useTheme();
-    const ref = useRef<HTMLCanvasElement>(null);
-
-    useEffect(() => {
-        if (ref.current == null) return;
-
-        const canvas = ref.current;
-        canvas.width = 40; // Set canvas width
-        canvas.height = 200; // Set canvas height
-        const context = canvas.getContext('2d');
-
-        const drawWavyLine = (ctx: CanvasRenderingContext2D) => {
-            const amplitude = 5; // Adjusted for the narrower width
-            const wavelength = 50; // Shorter wavelength for the vertical orientation
-            const widthOffset = canvas.width / 2; // Horizontal position of the line's midpoint
-
-            // Starting point of the line
-            ctx.moveTo(widthOffset, 0);
-
-            // Draw the wavy line across the canvas height
-            for (let y = 0; y < canvas.height; y += wavelength) {
-                // Calculate the control point for the quadratic curve
-                const cpY = y + wavelength / 2; // Control point y-coordinate (midpoint of the wavelength)
-                const cpX = widthOffset + (y % (wavelength * 2) === 0 ? amplitude : -amplitude); // Control point x-coordinate, alternating wave width
-
-                // End point of the quadratic curve
-                const endY = y + wavelength;
-                const endX = widthOffset;
-
-                // Draw the quadratic curve
-                ctx.quadraticCurveTo(cpX, cpY, endX, endY);
-            }
-
-            // Stroke settings
-            ctx.strokeStyle = theme.colors.brand.tangerineOrange[900]; // Line color
-            ctx.lineWidth = 2; // Line width
-            ctx.stroke(); // Draw the line
-        };
-
-        if (context === null) {
-            return;
-        }
-        drawWavyLine(context);
-    }, []);
-
-    return (
-        <canvas ref={ref} id={id} width="40" height="200" style={{display: 'block', width: '40px', height: '200px'}}/>
-    );
-};
-
+import React, { useCallback, useEffect, useState } from "react";
+import {
+    Box,
+    Flex,
+    HStack,
+    IconButton,
+    Stack,
+    Text,
+    VStack,
+    Link,
+    Spinner,
+} from "@chakra-ui/react";
+import { graphql } from "gatsby";
+import { LazyIcon } from "./LazyIcon";
+import { IconMail } from "@tabler/icons-react";
+import { motion, useAnimation } from "framer-motion";
 const MailButton = () => {
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -76,7 +33,7 @@ const MailButton = () => {
                 }
                 return json;
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error("Fetch Email Error: ", error);
                 return null; // Return null or a default value in case of error
             });
@@ -99,22 +56,35 @@ const MailButton = () => {
     return (
         <Flex>
             <IconButton
-                _hover={{color: "brand.tangerineOrange.600"}}
-                onClick={handleFetchEmail} variant={"link"} fontSize={24} aria-label={"mail"}
+                _hover={{ color: "brand.tangerineOrange.600" }}
+                onClick={handleFetchEmail}
+                variant={"link"}
+                fontSize={24}
+                aria-label={"mail"}
                 color={"brand.tangerineOrange.900"}
-                icon={loading ? <Spinner color={"brand.tangerineOrange.900"}/> : <IconMail/>}
+                icon={
+                    loading ? (
+                        <Spinner color={"brand.tangerineOrange.900"} />
+                    ) : (
+                        <IconMail />
+                    )
+                }
             />
         </Flex>
-    )
-}
+    );
+};
 
 const MotionVStack = motion(VStack);
 
 const footerElementVariants = {
-    hidden: {opacity: 0},
-    visible: {opacity: 1, transition: {duration: 1, delay: 2}}
-}
-export const Footer = ({links}: { links: Queries.FooterLinkComponentFragment[] }) => {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 1, delay: 2 } },
+};
+export const Footer = ({
+    links,
+}: {
+    links: Queries.FooterLinkComponentFragment[];
+}) => {
     const controls = useAnimation();
 
     useEffect(() => {
@@ -127,7 +97,7 @@ export const Footer = ({links}: { links: Queries.FooterLinkComponentFragment[] }
                 {links.map((elem) => (
                     <Flex key={elem.title}>
                         <IconButton
-                            _hover={{color: "brand.tangerineOrange.600"}}
+                            _hover={{ color: "brand.tangerineOrange.600" }}
                             aria-label={elem.title ?? ""}
                             as={Link}
                             href={elem.link ?? ""}
@@ -135,26 +105,50 @@ export const Footer = ({links}: { links: Queries.FooterLinkComponentFragment[] }
                             fontSize={24}
                             isExternal={true}
                             variant={"link"}
-                            icon={<LazyIcon iconName={elem.icon ?? ""}/>}
+                            icon={<LazyIcon iconName={elem.icon ?? ""} />}
                         />
                     </Flex>
                 ))}
             </>
-        )
-    }, [links])
+        );
+    }, [links]);
 
     return (
-        <Flex w={"100vw"} paddingX={16} paddingY={16} background={"brand.background.green"} justifyContent={"center"}>
-            <Box position={"fixed"} w={"100%"} bottom={0} left={0} display={{base: "none", md: "block"}}>
-                <HStack justifyContent={"space-between"} alignItems={"flex-end"} paddingX={2}>
+        <Flex
+            w={"100vw"}
+            paddingX={16}
+            paddingY={16}
+            background={"brand.background.green"}
+            justifyContent={"center"}
+            marginTop={"-1px"}
+            marginBottom={"0px"}
+        >
+            <Box
+                position={"fixed"}
+                w={"100%"}
+                bottom={0}
+                left={0}
+                display={{ base: "none", md: "block" }}
+            >
+                <HStack
+                    justifyContent={"space-between"}
+                    alignItems={"flex-end"}
+                    paddingX={2}
+                >
                     <MotionVStack
                         initial={"hidden"}
                         variants={footerElementVariants}
                         animate={controls}
-                        alignItems={"flex-end"} gap={4}>
-                        <Icons/>
-                        <Box height={"100px"} width={"50%"} borderLeft={"2px solid"}
-                             borderLeftColor={"brand.tangerineOrange.900"}/>
+                        alignItems={"flex-end"}
+                        gap={4}
+                    >
+                        <Icons />
+                        <Box
+                            height={"100px"}
+                            width={"50%"}
+                            borderLeft={"2px solid"}
+                            borderLeftColor={"brand.tangerineOrange.900"}
+                        />
                     </MotionVStack>
                     <MotionVStack
                         alignItems={"flex-end"}
@@ -163,25 +157,37 @@ export const Footer = ({links}: { links: Queries.FooterLinkComponentFragment[] }
                         variants={footerElementVariants}
                         animate={controls}
                     >
-                        <MailButton/>
-                        <Box height={"100px"} width={"50%"} borderLeft={"2px solid"}
-                             borderLeftColor={"brand.tangerineOrange.900"}/>
+                        <MailButton />
+                        <Box
+                            height={"100px"}
+                            width={"50%"}
+                            borderLeft={"2px solid"}
+                            borderLeftColor={"brand.tangerineOrange.900"}
+                        />
                     </MotionVStack>
                 </HStack>
             </Box>
             <Stack gap={5}>
-                <HStack display={{base: "flex", md: "none"}} gap={5} alignItems={"center"}>
+                <HStack
+                    display={{ base: "flex", md: "none" }}
+                    gap={5}
+                    alignItems={"center"}
+                >
                     <Icons />
-                    <MailButton/>
+                    <MailButton />
                 </HStack>
                 <Stack textAlign={"center"}>
-                    <Text color={"brand.tangerineOrange.700"}>Designed by Greg Murray</Text>
-                    <Text color={"brand.tangerineOrange.700"} fontSize={12}>{new Date().getFullYear()}</Text>
+                    <Text color={"brand.tangerineOrange.700"}>
+                        Designed by Greg Murray
+                    </Text>
+                    <Text color={"brand.tangerineOrange.700"} fontSize={12}>
+                        {new Date().getFullYear()}
+                    </Text>
                 </Stack>
             </Stack>
         </Flex>
-    )
-}
+    );
+};
 
 export const query = graphql`
     fragment FooterLinkComponent on ContentfulFooterLink {
@@ -189,4 +195,4 @@ export const query = graphql`
         icon
         link
     }
-`
+`;

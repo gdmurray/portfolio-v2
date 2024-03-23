@@ -1,4 +1,4 @@
-import {extendTheme} from "@chakra-ui/react"
+import { extendTheme } from "@chakra-ui/react";
 
 const brandColors = {
     orange: "#FDA121",
@@ -6,7 +6,7 @@ const brandColors = {
     black: "#262324",
     background: {
         green: "#34321f",
-        beige: "#f6f5ef"
+        beige: "#f6f5ef",
     },
     subaruGreen: {
         900: "#34321D",
@@ -33,26 +33,26 @@ const brandColors = {
         50: "#FEF4E6",
     },
     skyBlue: {
-      900: "#6CCFF6",
+        900: "#6CCFF6",
         800: "#87D8F8",
         700: "#9FE0F9",
     },
     aquaBlue: {
-      900: "#44FFD2"
+        900: "#44FFD2",
     },
     roseRed: {
-      900: "#FF3E41"
+        900: "#FF3E41",
     },
     oliveGreen: {
-      900: "#C8D96F"
+        900: "#C8D96F",
     },
     neonGreen: {
-      900: "#DCED31"
+        900: "#DCED31",
     },
     orangeHighlight: "#FDBF68",
     greenHighlight: "#a49d5b",
-    highlight: "#ec9837"
-}
+    highlight: "#ec9837",
+};
 const theme = extendTheme({
     config: {
         initialColorMode: "light",
@@ -64,7 +64,7 @@ const theme = extendTheme({
     },
     colors: {
         brand: brandColors,
-    }
-})
+    },
+});
 
-export default theme
+export default theme;

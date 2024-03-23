@@ -29,6 +29,7 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
+    "@typescript-eslint/ban-ts-comment": "warn",
     "prettier/prettier": "error",
     "react/prop-types": "off",
     "react/jsx-filename-extension": "off",

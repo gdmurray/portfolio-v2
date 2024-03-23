@@ -6,40 +6,79 @@ import {
     ModalBody,
     ModalContent,
     ModalOverlay,
-    Text, useDisclosure,
+    Text,
+    useDisclosure,
     useTheme,
     VStack,
     Link as ChakraLink,
 } from "@chakra-ui/react";
-import React, {useCallback, useEffect, useRef, useState} from "react";
-import {IconExternalLink, IconMenuDeep, IconX} from "@tabler/icons-react";
-import {useLocation} from '@reach/router';
-import {Link, navigate} from "gatsby";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { IconExternalLink, IconMenuDeep, IconX } from "@tabler/icons-react";
+import { useLocation } from "@reach/router";
+import { Link, navigate } from "gatsby";
 import {
     AnimatePresence,
     motion,
     useAnimation,
-    useInView, useMotionValueEvent,
+    useInView,
+    useMotionValueEvent,
     useScroll,
 } from "framer-motion";
-import {throttle} from "lodash";
+import { throttle } from "lodash";
 
 const Logo = () => {
     return (
-        <Box cursor={"pointer"}
-             as={Link}
-             to={"/"}
-             width={"40px"}
-             height={"40px"}
-             display={"flex"}
-             justifyContent={"center"}
-             _hover={{boxShadow: "lg"}}
-             alignItems={"center"}
-             background={"brand.green"} borderTopLeftRadius={"xl"} borderBottomRightRadius={"xl"}>
-            <Text fontSize={"3xl"} fontWeight={"bold"} color={"brand.orange"}>G</Text>
+        <Box
+            cursor={"pointer"}
+            as={Link}
+            to={"/"}
+            width={"40px"}
+            height={"40px"}
+            display={"flex"}
+            justifyContent={"center"}
+            _hover={{ boxShadow: "lg" }}
+            alignItems={"center"}
+            background={"brand.green"}
+            borderTopLeftRadius={"xl"}
+            borderBottomRightRadius={"xl"}
+        >
+            <Text fontSize={"3xl"} fontWeight={"bold"} color={"brand.orange"}>
+                G
+            </Text>
         </Box>
-    )
-}
+    );
+};
+
+const smoothScrollTo = (element: HTMLElement) => {
+    if (typeof window === "undefined") {
+        return element.scrollIntoView({ behavior: "smooth" });
+    }
+    const targetPosition =
+        element.getBoundingClientRect().top + window.pageYOffset;
+    const startPosition = window.pageYOffset;
+    const distance = targetPosition - startPosition;
+    const duration = 1000;
+    let start: number | null = null;
+
+    window.requestAnimationFrame(step);
+
+    function step(timestamp: number) {
+        if (!start) start = timestamp;
+        const progress = timestamp - start;
+        window.scrollTo(
+            0,
+            easeInOutQuad(progress, startPosition, distance, duration),
+        );
+        if (progress < duration) window.requestAnimationFrame(step);
+    }
+
+    function easeInOutQuad(t: number, b: number, c: number, d: number): number {
+        t /= d / 2;
+        if (t < 1) return (c / 2) * t * t + b;
+        t--;
+        return (-c / 2) * (t * (t - 2) - 1) + b;
+    }
+};
 
 const MotionButton = motion(Button);
 const sections = ["Home", "About", "Skills", "Projects", "Experience"];
@@ -67,36 +106,108 @@ function findIndexInRange(numbers: number[], target: number) {
         }
     }
 
-
     return 0;
 }
 
 const MotionModalBody = motion(ModalBody);
 
+const HeaderButton = ({
+    section,
+    isModal,
+    onClose,
+    activeSection,
+    setActiveSection,
+    motionProps = {},
+}: {
+    section: string;
+    isModal: boolean;
+    motionProps?: any;
+    onClose?: () => void;
+    activeSection: string;
+    setActiveSection: (section: string) => void;
+}) => {
+    function getButtonProps() {
+        if (isModal) {
+            return {
+                size: "lg",
+                variant: "ghost",
+                w: "full",
+                justifyContent: "left",
+                ...motionProps,
+            };
+        }
+        return {
+            variant: "link",
+            textUnderlineOffset: "5px",
+        };
+    }
+
+    const onClickHandler = () => {
+        setActiveSection(section);
+        if (section === "Home") {
+            onClose && onClose();
+            navigate("/");
+            return;
+        }
+
+        navigate("/#section-" + section.toLowerCase());
+        const sectionId = `section-${section.toLowerCase()}`;
+        const element = document.getElementById(sectionId);
+        if (element != null) {
+            smoothScrollTo(element);
+            onClose && onClose();
+        }
+    };
+
+    return (
+        <MotionButton
+            data-active={section === activeSection ? true : undefined}
+            _active={{
+                color: "brand.tangerineOrange.900",
+                fontWeight: 600,
+                textDecoration: isModal ? undefined : "underline",
+            }}
+            _hover={{
+                fontWeight: 600,
+                background: isModal ? "brand.tangerineOrange.100" : undefined,
+            }}
+            color={"brand.subaruGreen.900"}
+            fontWeight={500}
+            onClick={onClickHandler}
+            {...getButtonProps()}
+        >
+            {section}
+        </MotionButton>
+    );
+};
+
 export function Header() {
     const resumeLink = process.env.GATSBY_RESUME_URL;
     const theme = useTheme();
-    const {hash} = useLocation();
+    const { hash } = useLocation();
     const [hasBoxShadow, setHasBoxShadow] = React.useState(false);
     const ref = useRef(null);
-    const [activeSection, setActiveSection] = useState("Home")
+    const [activeSection, setActiveSection] = useState("Home");
     const [sectionLocations, setSectionLocations] = useState<number[]>([]);
-    const {isOpen, onOpen, onClose, onToggle} = useDisclosure();
+    const { isOpen, onClose, onToggle } = useDisclosure();
 
-    const inView = useInView(ref, {once: true})
-    const {scrollY} = useScroll();
+    const inView = useInView(ref, { once: true });
+    const { scrollY } = useScroll();
 
     const controls = useAnimation();
     const delta = React.useRef(0);
     const lastScrollY = React.useRef(0);
 
-
     useEffect(() => {
         // Function to fetch divs and update state
         const fetchSectionDivs = () => {
-            const sections: HTMLDivElement[] = Array.from(document.querySelectorAll('[id^="section-"]'));
+            const sections: HTMLDivElement[] = Array.from(
+                document.querySelectorAll('[id^="section-"]'),
+            );
             if (sections != null) {
-                setSectionLocations(sections.map(section => section.offsetTop - 50));
+                setSectionLocations(
+                    sections.map((section) => section.offsetTop - 50),
+                );
             }
         };
 
@@ -104,26 +215,29 @@ export function Header() {
         fetchSectionDivs();
 
         // Set up resize event listener
-        window.addEventListener('resize', fetchSectionDivs);
+        window.addEventListener("resize", fetchSectionDivs);
 
         // Clean up event listener on component unmount
-        return () => window.removeEventListener('resize', fetchSectionDivs);
+        return () => window.removeEventListener("resize", fetchSectionDivs);
     }, []);
 
-    const throttledSetActiveSection = useCallback(throttle((scrollY: number) => {
-        const index = findIndexInRange(sectionLocations, scrollY);
-        const section = sections[index];
-        if (section !== activeSection) {
-            setActiveSection(section);
-            if (hash !== `#section-${activeSection.toLowerCase()}`) {
-                window.history.pushState(null, "", "/");
+    const throttledSetActiveSection = useCallback(
+        throttle((scrollY: number) => {
+            const index = findIndexInRange(sectionLocations, scrollY);
+            const section = sections[index];
+            if (section !== activeSection) {
+                setActiveSection(section);
+                if (hash !== `#section-${activeSection.toLowerCase()}`) {
+                    window.history.pushState(null, "", "/");
+                }
             }
-        }
-    }, 250), [sectionLocations, activeSection]);
+        }, 250),
+        [sectionLocations, activeSection],
+    );
 
     useMotionValueEvent(scrollY, "change", (val) => {
         if (lastScrollY.current >= 15 && !hasBoxShadow) {
-            setHasBoxShadow(true)
+            setHasBoxShadow(true);
         }
         if (lastScrollY.current < 15 && hasBoxShadow) {
             setHasBoxShadow(false);
@@ -144,18 +258,18 @@ export function Header() {
 
         // Call the throttled function with current scroll position
         throttledSetActiveSection(val);
-    })
+    });
 
     function getSlideDownProps(index: number) {
         return {
             initial: "hidden",
             animate: inView ? "visible" : "hidden",
             variants: {
-                hidden: {opacity: 0, y: -50}, // Start below their final position
+                hidden: { opacity: 0, y: -50 }, // Start below their final position
                 visible: {
                     opacity: 1,
                     y: 0,
-                    transition: {duration: 0.5, delay: index * 0.05},
+                    transition: { duration: 0.5, delay: index * 0.05 },
                 },
             },
         };
@@ -175,8 +289,8 @@ export function Header() {
             initial="visible"
             animate={controls}
             variants={{
-                visible: {top: "0px"},
-                hidden: {top: "-100px"}
+                visible: { top: "0px" },
+                hidden: { top: "-100px" },
             }}
             shadow={showBoxShadow ? "md" : "none"}
             zIndex={1800}
@@ -189,14 +303,23 @@ export function Header() {
                 paddingX={4}
                 paddingY={6}
             >
-                <Logo/>
+                <Logo />
                 <Box
                     cursor={"pointer"}
-                    display={{base: "block", md: "none"}}
+                    display={{ base: "block", md: "none" }}
                     onClick={onToggle}
                 >
-                    {isOpen ? <IconX color={theme.colors.brand.tangerineOrange[900]} size={32}/> :
-                        <IconMenuDeep color={theme.colors.brand.tangerineOrange[900]} size={32}/>}
+                    {isOpen ? (
+                        <IconX
+                            color={theme.colors.brand.tangerineOrange[900]}
+                            size={32}
+                        />
+                    ) : (
+                        <IconMenuDeep
+                            color={theme.colors.brand.tangerineOrange[900]}
+                            size={32}
+                        />
+                    )}
                 </Box>
                 <Modal
                     isOpen={isOpen}
@@ -218,11 +341,11 @@ export function Header() {
                 >
                     <ModalContent
                         as={"div"}
-                        containerProps={{marginTop: 88}}
+                        containerProps={{ marginTop: 88 }}
                         zIndex={1500}
                         dropShadow={"xl"}
                     >
-                        <ModalOverlay onClick={onClose}/>
+                        <ModalOverlay onClick={onClose} />
                         <AnimatePresence>
                             {isOpen && (
                                 <MotionModalBody
@@ -231,46 +354,28 @@ export function Header() {
                                     shadow={"xl"}
                                     dropShadow={"lg"}
                                     zIndex={1500}
-                                    initial={{y: -100, opacity: 1}}
-                                    animate={{y: 0, opacity: 1}}
-                                    exit={{y: -100, opacity: 1}}
-                                    transition={{duration: 0.25}}
+                                    initial={{ y: -100, opacity: 1 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: -100, opacity: 1 }}
+                                    transition={{ duration: 0.25 }}
                                 >
-                                    <VStack gap={1} alignItems={"flex-start"} paddingX={2}>
-                                        {sections.map((section, index) => (
-                                                <Button
-                                                    key={`header-modal-button-${section}`}
-                                                    size={"lg"}
-                                                    onClick={() => {
-                                                        setActiveSection(section);
-                                                        if (section === "Home") {
-                                                            onClose();
-                                                            navigate("/");
-                                                            return;
-                                                        }
-                                                        navigate("/#section-" + section.toLowerCase());
-                                                        const sectionId = `section-${section.toLowerCase()}`;
-                                                        const element = document.getElementById(sectionId);
-                                                        if (element != null) {
-                                                            setTimeout(() => {
-                                                                element.scrollIntoView({behavior: "smooth"});
-                                                            }, 10); // Adding a slight delay
-                                                            onClose();
-                                                        }
-                                                    }}
-                                                    data-active={section === activeSection ? true : undefined}
-                                                    _active={{
-                                                        color: "brand.tangerineOrange.900",
-                                                        fontWeight: 600,
-                                                    }}
-                                                    justifyContent={"left"}
-                                                    _hover={{fontWeight: 600, background: "brand.tangerineOrange.100"}}
-                                                    fontWeight={500}
-                                                    variant={"ghost"}
-                                                    w={"full"}
-                                                    color={"brand.subaruGreen.900"}>{section}</Button>
-                                            )
-                                        )}
+                                    <VStack
+                                        gap={1}
+                                        alignItems={"flex-start"}
+                                        paddingX={2}
+                                    >
+                                        {sections.map((section) => (
+                                            <HeaderButton
+                                                key={`header-modal-button-${section}`}
+                                                section={section}
+                                                isModal={true}
+                                                activeSection={activeSection}
+                                                setActiveSection={
+                                                    setActiveSection
+                                                }
+                                                onClose={onClose}
+                                            />
+                                        ))}
                                         <Button
                                             size={"lg"}
                                             variant={"ghost"}
@@ -280,8 +385,12 @@ export function Header() {
                                             href={resumeLink}
                                             w={"full"}
                                             justifyContent={"left"}
-                                            rightIcon={<IconExternalLink/>}
-                                            _hover={{fontWeight: 600, background: "brand.tangerineOrange.100"}}
+                                            rightIcon={<IconExternalLink />}
+                                            _hover={{
+                                                fontWeight: 600,
+                                                background:
+                                                    "brand.tangerineOrange.100",
+                                            }}
                                         >
                                             Resume
                                         </Button>
@@ -292,8 +401,8 @@ export function Header() {
                     </ModalContent>
                 </Modal>
                 <Box
-                    display={{base: "none", md: "block"}}
-                    flexBasis={{base: "100%", md: "auto"}}
+                    display={{ base: "none", md: "block" }}
+                    flexBasis={{ base: "100%", md: "auto" }}
                 >
                     <Flex
                         align="center"
@@ -308,37 +417,15 @@ export function Header() {
                         pt={[4, 4, 0, 0]}
                     >
                         {sections.map((section, index) => (
-                                <MotionButton
-                                    key={`header-button-${section}`}
-                                    {...getSlideDownProps(index)}
-                                    onClick={() => {
-                                        setActiveSection(section);
-                                        if (section === "Home") {
-                                            navigate("/");
-                                            return;
-                                        }
-                                        navigate("/#section-" + section.toLowerCase());
-                                        const sectionId = `section-${section.toLowerCase()}`;
-                                        const element = document.getElementById(sectionId);
-                                        if (element != null) {
-                                            setTimeout(() => {
-                                                element.scrollIntoView({behavior: "smooth"});
-                                            }, 10); // Adding a slight delay
-                                        }
-                                    }}
-                                    data-active={section === activeSection ? true : undefined}
-                                    _active={{
-                                        color: "brand.tangerineOrange.900",
-                                        fontWeight: 600,
-                                        textDecoration: "underline"
-                                    }}
-                                    textUnderlineOffset={"5px"}
-                                    _hover={{fontWeight: 600}}
-                                    fontWeight={500}
-                                    variant={"link"}
-                                    color={"brand.subaruGreen.900"}>{section}</MotionButton>
-                            )
-                        )}
+                            <HeaderButton
+                                key={`header-button-${section}`}
+                                section={section}
+                                isModal={false}
+                                activeSection={activeSection}
+                                setActiveSection={setActiveSection}
+                                motionProps={getSlideDownProps(index)}
+                            />
+                        ))}
                         <Button
                             as={ChakraLink}
                             isExternal={true}
@@ -346,7 +433,10 @@ export function Header() {
                             href={resumeLink}
                             color={"brand.tangerineOrange.900"}
                             background={"brand.tangerineOrange.100"}
-                            _hover={{fontWeight: 600, background: "brand.tangerineOrange.200"}}
+                            _hover={{
+                                fontWeight: 600,
+                                background: "brand.tangerineOrange.200",
+                            }}
                         >
                             Resume
                         </Button>
@@ -356,6 +446,5 @@ export function Header() {
         </MotionFlex>
     );
 }
-
 
 export default Header;
