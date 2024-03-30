@@ -343,13 +343,14 @@ export const AboutMe = (props: Queries.AboutMeComponentFragment) => {
             bg={"brand.background.beige"}
             title={"1. About Me"}
             anchor={"about"}
+            baseDelay={0.5}
         >
             <MotionStack
                 ref={ref}
                 flexDirection={{ base: "column-reverse", lg: "row" }}
                 initial={{ opacity: 0 }} // Start hidden
                 animate={{ opacity: inView ? 1 : 0 }} // Fade in when in view
-                transition={{ duration: 0.75, ease: "easeInOut", delay: 1 }}
+                transition={{ duration: 0.75, ease: "easeInOut", delay: 0.75 }}
             >
                 <Stack flex={2} maxW={"2xl"} paddingRight={4}>
                     <RichText raw={props.content?.raw ?? ""} />

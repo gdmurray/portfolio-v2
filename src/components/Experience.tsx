@@ -57,7 +57,7 @@ export const ExperienceItem = ({
                     {experience.name}
                 </Text>
             </Heading>
-            <Heading size={"sm"} as={"h5"} color={"gray.300"}>
+            <Heading size={"sm"} as={"h2"} color={"gray.300"}>
                 {dayjs(experience.dateFrom).format("MMM YYYY")} -{" "}
                 {experience.dateTo != null
                     ? dayjs(experience.dateTo).format("MMM YYYY")

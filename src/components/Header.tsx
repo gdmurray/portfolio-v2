@@ -10,7 +10,7 @@ import {
     useDisclosure,
     useTheme,
     VStack,
-    Link as ChakraLink,
+    // Link as ChakraLink,
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IconExternalLink, IconMenuDeep, IconX } from "@tabler/icons-react";
@@ -25,6 +25,7 @@ import {
     useScroll,
 } from "framer-motion";
 import { throttle } from "lodash";
+import { OutboundLink } from "gatsby-plugin-google-gtag";
 
 const Logo = () => {
     return (
@@ -275,6 +276,19 @@ export function Header() {
         };
     }
 
+    // function onResumeClick() {
+    //     console.log("Handling Resume click");
+    //     if (typeof window !== "undefined" && window.gtag) {
+    //         console.log("window.gtag is not undefined");
+    //         window.gtag("event", "click", {
+    //             event_category: "Resume",
+    //             event_label: "Resume Opened",
+    //             event_action: "open",
+    //             value: 1,
+    //         });
+    //     }
+    // }
+
     const showBoxShadow = hasBoxShadow && !isOpen;
 
     return (
@@ -380,11 +394,12 @@ export function Header() {
                                             size={"lg"}
                                             variant={"ghost"}
                                             color={"brand.tangerineOrange.900"}
-                                            as={ChakraLink}
-                                            isExternal={true}
+                                            as={OutboundLink}
                                             href={resumeLink}
+                                            target={"_blank"}
                                             w={"full"}
                                             justifyContent={"left"}
+                                            // onClick={onResumeClick}
                                             rightIcon={<IconExternalLink />}
                                             _hover={{
                                                 fontWeight: 600,
@@ -427,9 +442,10 @@ export function Header() {
                             />
                         ))}
                         <Button
-                            as={ChakraLink}
-                            isExternal={true}
+                            as={OutboundLink}
                             variant={"solid"}
+                            target={"_blank"}
+                            // onClick={onResumeClick}
                             href={resumeLink}
                             color={"brand.tangerineOrange.900"}
                             background={"brand.tangerineOrange.100"}

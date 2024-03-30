@@ -1,19 +1,55 @@
-import { Flex, Heading, Stack, useTheme } from "@chakra-ui/react";
-import React from "react";
+import { Box, Flex, Heading, HStack, Stack, useTheme } from "@chakra-ui/react";
+import React, { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 
+const MotionHeading = motion(Heading);
+const MotionBox = motion(Box);
 export const Section = ({
     bg,
     title,
     anchor,
     children,
     isLast = false,
+    baseDelay = 0,
 }: {
     bg: string;
     title: string;
     anchor: string;
     children: React.ReactNode;
     isLast?: boolean;
+    baseDelay?: number;
 }) => {
+    const ref = useRef(null);
+    const inView = useInView(ref, {
+        once: true,
+    });
+
+    const headerVariants = {
+        visible: {
+            opacity: 1,
+            transition: {
+                duration: 0.25,
+                delay: baseDelay,
+            },
+        },
+        hidden: {
+            opacity: 0,
+        },
+    };
+
+    const boxVariants = {
+        visible: {
+            width: "100%",
+            transition: {
+                duration: 0.5,
+                delay: baseDelay + 0.15,
+            },
+        },
+        hidden: {
+            width: "0%",
+        },
+    };
+
     const theme = useTheme();
     const hrStyle = {
         display: "flex",
@@ -40,6 +76,7 @@ export const Section = ({
 
     return (
         <Flex
+            ref={ref}
             paddingX={{ base: 0, md: 16 }}
             background={bg}
             w={"100vw"}
@@ -53,16 +90,27 @@ export const Section = ({
                 {...getPaddingProps()}
                 id={`section-${anchor}`}
             >
-                <Heading
-                    mb={4}
-                    display={"flex"}
-                    flexDirection={"row"}
-                    color={theme.colors.brand.orange}
-                    size={"lg"}
-                >
-                    {title}
-                    <hr style={hrStyle} />
-                </Heading>
+                <HStack mb={4}>
+                    <MotionHeading
+                        initial={"hidden"}
+                        animate={inView ? "visible" : "hidden"}
+                        variants={headerVariants}
+                        flexShrink={0}
+                        display={"flex"}
+                        flexDirection={"row"}
+                        color={theme.colors.brand.orange}
+                        size={"lg"}
+                    >
+                        {title}
+                    </MotionHeading>
+                    <MotionBox
+                        initial={"hidden"}
+                        animate={inView ? "visible" : "hidden"}
+                        variants={boxVariants}
+                    >
+                        <hr style={hrStyle} />
+                    </MotionBox>
+                </HStack>
                 {children}
             </Stack>
         </Flex>
