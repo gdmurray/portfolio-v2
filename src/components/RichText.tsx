@@ -11,9 +11,7 @@ import {
 } from "@contentful/rich-text-react-renderer";
 import {
     Box,
-    chakra,
     Heading,
-    Link,
     ListItem,
     OrderedList,
     Text,
@@ -21,30 +19,7 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { navigate } from "gatsby";
-
-const AnimatedLink = chakra(Link, {
-    baseStyle: {
-        position: "relative",
-        overflow: "hidden",
-        fontWeight: 600,
-        _after: {
-            content: '""',
-            position: "absolute",
-            width: "0",
-            height: "1px",
-            bottom: "0",
-            left: "0",
-            bg: "currentColor", // Or any color you want the underline to be
-            transition: "width 0.3s ease",
-        },
-        _hover: {
-            textDecoration: "none",
-            _after: {
-                width: "100%",
-            },
-        },
-    },
-});
+import { AnimatedLink } from "./AnimatedLink";
 
 function smoothScrollToId(id: string) {
     if (typeof document !== "undefined") {
@@ -159,6 +134,7 @@ const defaultNodeRenderers: RenderNode = {
         const { uri } = node.data;
         return (
             <AnimatedLink
+                fontWeight={600}
                 href={uri}
                 color="brand.tangerineOrange.900"
                 onClick={onLinkClick}

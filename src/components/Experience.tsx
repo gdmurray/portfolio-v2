@@ -13,6 +13,7 @@ import { Section } from "./Section";
 import { IconChevronRight } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { motion, useInView } from "framer-motion";
+import { AnimatedLink } from "./AnimatedLink";
 
 const MotionHStack = motion(HStack);
 export const ExperienceItem = ({
@@ -54,7 +55,18 @@ export const ExperienceItem = ({
             <Heading color={"white"} size={"md"}>
                 {experience?.title} @{" "}
                 <Text as={"span"} color={color}>
-                    {experience.name}
+                    {experience.link != null ? (
+                        <AnimatedLink
+                            color={color}
+                            fontWeight={700}
+                            isExternal={true}
+                            href={experience.link}
+                        >
+                            {experience.name}
+                        </AnimatedLink>
+                    ) : (
+                        <>{experience.name}</>
+                    )}
                 </Text>
             </Heading>
             <Heading size={"sm"} as={"h2"} color={"gray.300"}>
@@ -141,6 +153,7 @@ export const query = graphql`
             description {
                 description
             }
+            link
             anchor
         }
     }

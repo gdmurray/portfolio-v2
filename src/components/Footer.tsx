@@ -165,6 +165,7 @@ export const Footer = ({
                 <HStack
                     display={{ base: "flex", md: "none" }}
                     gap={5}
+                    justifyContent={"center"}
                     alignItems={"center"}
                 >
                     <Icons />
@@ -172,7 +173,7 @@ export const Footer = ({
                 </HStack>
                 <Stack textAlign={"center"}>
                     <Text color={"brand.tangerineOrange.700"}>
-                        Designed by Greg Murray
+                        Designed and Built <br /> by Greg Murray
                     </Text>
                     <Text color={"brand.tangerineOrange.700"} fontSize={12}>
                         {new Date().getFullYear()}
